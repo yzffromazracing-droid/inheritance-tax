@@ -488,3 +488,4 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .rate-table .nw { white-space: nowrap; }
 .rate-note { margin: 6px 0 0; color: var(--muted); font-size: 0.82rem; }
 .results > li { min-width: 0; }
+.rate-caption { margin: 10px 0 4px; font-size: 0.88rem; }

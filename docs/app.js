@@ -669,7 +669,9 @@
             el("h3", { class: "topic-title" }, [el("span", { text: t.name }), el("span", { class: "topic-count", text: items.length + " 件" })]),
             el("p", { class: "topic-desc", text: t.desc }),
             t.table ? renderRateTable(t.table) : null,
-          ].concat(groups))
+          ].concat((t.tables || []).map(renderRateTable), [
+            t.note ? el("p", { class: "rate-note", text: t.note }) : null,
+          ], groups))
         );
       });
       if (!results.length) {
@@ -681,16 +683,17 @@
     function renderRateTable(tb) {
       var table = el("table", { class: "article-table rate-table" }, [
         el("thead", {}, [el("tr", {}, tb.head.map(function (h) {
-          return el("th", h.length <= 12 ? { scope: "col", class: "nw", text: h } : { scope: "col", text: h });
+          return el("th", h.length <= 8 ? { scope: "col", class: "nw", text: h } : { scope: "col", text: h });
         }))]),
         el("tbody", {}, tb.rows.map(function (row) {
           return el("tr", {}, row.map(function (c) {
             // 税率・控除額などの短い値は折り返さない
-            return el("td", c.length <= 12 ? { class: "nw", text: c } : { text: c });
+            return el("td", c.length <= 8 ? { class: "nw", text: c } : { text: c });
           }));
         })),
       ]);
       return el("div", { class: "rate-box" }, [
+        tb.caption ? el("h4", { class: "rate-caption", text: tb.caption }) : null,
         el("div", { class: "article-table-wrap" }, [table]),
         tb.note ? el("p", { class: "rate-note", text: tb.note }) : null,
       ]);
