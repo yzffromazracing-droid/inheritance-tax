@@ -668,12 +668,31 @@
           el("li", { class: "topic-card" }, [
             el("h3", { class: "topic-title" }, [el("span", { text: t.name }), el("span", { class: "topic-count", text: items.length + " 件" })]),
             el("p", { class: "topic-desc", text: t.desc }),
+            t.table ? renderRateTable(t.table) : null,
           ].concat(groups))
         );
       });
       if (!results.length) {
         ul.appendChild(el("li", { class: "empty" }, [el("p", { text: "該当する項目が見つかりませんでした。" })]));
       }
+    }
+
+    // 速算表などの表（data.bunrui のテーマの table）
+    function renderRateTable(tb) {
+      var table = el("table", { class: "article-table rate-table" }, [
+        el("thead", {}, [el("tr", {}, tb.head.map(function (h) {
+          return el("th", { scope: "col", text: h });
+        }))]),
+        el("tbody", {}, tb.rows.map(function (row) {
+          return el("tr", {}, row.map(function (c) {
+            return el("td", { text: c });
+          }));
+        })),
+      ]);
+      return el("div", { class: "rate-box" }, [
+        el("div", { class: "article-table-wrap" }, [table]),
+        tb.note ? el("p", { class: "rate-note", text: tb.note }) : null,
+      ]);
     }
 
     function renderRefGroup(code, items, terms) {

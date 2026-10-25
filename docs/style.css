@@ -480,3 +480,11 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   .tabs { gap: 0; }
   .tab { padding: 10px 5px; font-size: 0.8rem; }
 }
+
+/* 税率の区分：速算表 */
+.rate-box { margin: 4px 0 10px; }
+.rate-table { min-width: 0; width: 100%; }
+.rate-table td, .rate-table th { white-space: normal; font-variant-numeric: tabular-nums; }
+.rate-table td:not(:first-child), .rate-table th:not(:first-child) { white-space: nowrap; }
+.rate-note { margin: 6px 0 0; color: var(--muted); font-size: 0.82rem; }
+.results > li { min-width: 0; }
