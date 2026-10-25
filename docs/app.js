@@ -681,11 +681,12 @@
     function renderRateTable(tb) {
       var table = el("table", { class: "article-table rate-table" }, [
         el("thead", {}, [el("tr", {}, tb.head.map(function (h) {
-          return el("th", { scope: "col", text: h });
+          return el("th", h.length <= 12 ? { scope: "col", class: "nw", text: h } : { scope: "col", text: h });
         }))]),
         el("tbody", {}, tb.rows.map(function (row) {
           return el("tr", {}, row.map(function (c) {
-            return el("td", { text: c });
+            // 税率・控除額などの短い値は折り返さない
+            return el("td", c.length <= 12 ? { class: "nw", text: c } : { text: c });
           }));
         })),
       ]);
