@@ -13,8 +13,8 @@
     bk: { label: "文書回答事例", short: "文書回答事例" },
   };
   var TSUTATSU = { kihon: true, hyoka: true, so: true, kobetsu: true };
-  var TABS = ["sozoku", "zoyo", "nta", "tsu"];
-  var DICT_TABS = ["sozoku", "zoyo"];
+  var TABS = ["sozoku", "zoyo", "zaisan", "nta", "tsu"];
+  var DICT_TABS = ["sozoku", "zoyo", "zaisan"];
   // サブタブのあるタブ（先頭が既定）
   var SUBS = { nta: ["ta", "qa", "bk"], tsu: ["kihon", "hyoka", "so", "kobetsu"] };
   // 種別ごとの掲載先（タブ・サブタブ）
@@ -35,6 +35,7 @@
   var BY_URL = {};
   var BY_NUM = {};
   var BUNRUI = {}; // { タブ: { 区分key: 区分 } }
+  var TAB_LABEL = {}; // { タブ: 表示名 }
   var CLASS_ORDER = {}; // { タブ: [区分key, …] }
   var YOMI_R = []; // 読み（ひらがな、読みの順）
   var YOMI_S = []; // 同じ位置の読みを持つ表記の配列
@@ -403,7 +404,7 @@
     return a.asof + "の法令・通達等に基づく内容";
   }
 
-  // 項目が属する相続税・贈与税の区分（押すとそのテーマを開く）
+  // 項目が属する相続税・贈与税・財産評価の区分（押すとそのテーマを開く）
   function renderTags(a) {
     var box = el("div", { class: "article-tags" });
     DICT_TABS.forEach(function (tab) {
@@ -411,7 +412,7 @@
       if (!t) return;
       CLASS_ORDER[tab].forEach(function (cls) {
         if (!t[cls]) return;
-        var btn = el("button", { class: "chip", type: "button", text: (tab === "sozoku" ? "相続税" : "贈与税") + "：" + t[cls] });
+        var btn = el("button", { class: "chip", type: "button", text: TAB_LABEL[tab] + "：" + t[cls] });
         btn.addEventListener("click", function () {
           openTopic(tab, cls, t[cls]);
         });
@@ -424,7 +425,7 @@
   /*
    * 検索・絞り込み・一覧の 1 セットを作る。
    * prefix : 要素IDの接頭辞（例：kihon → #kihon-q, #kihon-results …）
-   * opts.tab      : 相続税・贈与税タブ。区分（data.bunrui）のボタンとテーマの一覧を出す
+   * opts.tab      : 相続税・贈与税・財産評価タブ。区分（data.bunrui）のボタンとテーマの一覧を出す
    * opts.only     : この種別の記事だけを扱う
    * opts.showType : 各項目に種別バッジを出す
    * opts.allLabel : 分類の選択肢の「すべて」の表記
@@ -775,7 +776,7 @@
     window.scrollTo(0, 0);
   }
 
-  // 相続税・贈与税タブの区分のテーマを開く
+  // 相続税・贈与税・財産評価タブの区分のテーマを開く
   function openTopic(tab, cls, topic) {
     view.tab = tab;
     view.id = "";
@@ -832,6 +833,7 @@
 
   function init(data) {
     DICT_TABS.forEach(function (tab) {
+      TAB_LABEL[tab] = data.bunrui[tab].label;
       BUNRUI[tab] = {};
       CLASS_ORDER[tab] = [];
       data.bunrui[tab].classes.forEach(function (c) {
@@ -882,6 +884,7 @@
 
     setupDocTab("sozoku", { tab: "sozoku", showType: true });
     setupDocTab("zoyo", { tab: "zoyo", showType: true });
+    setupDocTab("zaisan", { tab: "zaisan", showType: true });
     setupDocTab("kihon", { only: "kihon", allLabel: "すべての章" });
     setupDocTab("hyoka", { only: "hyoka", allLabel: "すべての章" });
     setupDocTab("so", { only: "so", allLabel: "すべての条" });

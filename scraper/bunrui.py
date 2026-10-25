@@ -1,4 +1,4 @@
-"""相続税タブ・贈与税タブの整理表（区分 → テーマ）。
+"""相続税タブ・贈与税タブ・財産評価タブの整理表（区分 → テーマ）。
 
 各出典の目次に国税庁が付けている見出し（条・章・節・項目）と、タックスアンサーのコード番号、
 タイトル中の語句を手がかりに、相続税・贈与税のテーマへ割り当てる。
@@ -20,7 +20,7 @@ TSU = ("kihon", "hyoka", "so", "kobetsu")
 ART = ("ta", "qa", "bk")
 ALL = TSU + ART
 
-# ---------------------------------------------------------------- 両方のタブに置く区分（財産評価）
+# ---------------------------------------------------------------- 財産評価タブ
 
 HYOKA_CLASSES = [
     {
@@ -786,8 +786,9 @@ ZOYO_CLASSES = [
 ]
 
 TABS = {
-    "sozoku": {"label": "相続税", "classes": SOZOKU_CLASSES + HYOKA_CLASSES},
-    "zoyo": {"label": "贈与税", "classes": ZOYO_CLASSES + HYOKA_CLASSES},
+    "sozoku": {"label": "相続税", "classes": SOZOKU_CLASSES},
+    "zoyo": {"label": "贈与税", "classes": ZOYO_CLASSES},
+    "zaisan": {"label": "財産評価", "classes": HYOKA_CLASSES},
 }
 
 

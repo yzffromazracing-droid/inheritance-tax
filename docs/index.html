@@ -14,6 +14,7 @@
     <nav class="tabs" role="tablist">
       <button class="tab is-active" role="tab" data-tab="sozoku" aria-selected="true">相続税</button>
       <button class="tab" role="tab" data-tab="zoyo" aria-selected="false">贈与税</button>
+      <button class="tab" role="tab" data-tab="zaisan" aria-selected="false">財産評価</button>
       <button class="tab" role="tab" data-tab="nta" aria-selected="false">国税庁の記事</button>
       <button class="tab" role="tab" data-tab="tsu" aria-selected="false">通達</button>
     </nav>
@@ -32,7 +33,7 @@
       </div>
       <p id="sozoku-count" class="count"></p>
       <ul id="sozoku-results" class="results"></ul>
-      <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>区分を選ぶと、テーマごとの説明と、関係する通達・記事のタイトルを一覧にします。スペース区切りで複数語を指定でき（すべてを含むものを表示）、「-語」で除外できます。検索語は本文にも一致します。ひらがな・カタカナの読み（例：かしやたてつけち）でも検索できます。</p>
+      <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>区分を選ぶと、テーマごとの説明と、関係する通達・記事のタイトルを一覧にします。財産の評価は「財産評価」タブにまとめています。スペース区切りで複数語を指定でき（すべてを含むものを表示）、「-語」で除外できます。検索語は本文にも一致します。ひらがな・カタカナの読み（例：かしやたてつけち）でも検索できます。</p>
     </section>
 
     <!-- 贈与税（区分ごとの横断検索） -->
@@ -47,7 +48,22 @@
       </div>
       <p id="zoyo-count" class="count"></p>
       <ul id="zoyo-results" class="results"></ul>
-      <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>区分を選ぶと、テーマごとの説明と、関係する通達・記事のタイトルを一覧にします。財産評価の区分は相続税タブと共通です。スペース区切りで複数語を指定でき、「-語」で除外できます。ひらがな・カタカナの読みでも検索できます。</p>
+      <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>区分を選ぶと、テーマごとの説明と、関係する通達・記事のタイトルを一覧にします。財産の評価は「財産評価」タブにまとめています。スペース区切りで複数語を指定でき、「-語」で除外できます。ひらがな・カタカナの読みでも検索できます。</p>
+    </section>
+
+    <!-- 財産評価（区分ごとの横断検索） -->
+    <section id="tab-zaisan" class="panel" role="tabpanel" hidden>
+      <div class="search-box">
+        <input id="zaisan-q" type="search" placeholder="例：貸家建付地、るいじぎょうしゅ、20-2、配偶者居住権" autocomplete="off" aria-label="財産評価の項目をキーワードで検索">
+      </div>
+      <div class="filters">
+        <div id="zaisan-type-filters" class="chips" aria-label="区分で絞り込み"></div>
+        <div id="zaisan-topic-filters" class="chips" aria-label="テーマで絞り込み" hidden></div>
+        <select id="zaisan-category-filter" class="select" aria-label="出典と分類で絞り込み"></select>
+      </div>
+      <p id="zaisan-count" class="count"></p>
+      <ul id="zaisan-results" class="results"></ul>
+      <p class="source">出典：国税庁ホームページ（財産評価基本通達・相続税法基本通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>相続税・贈与税に共通する財産の評価（評価の原則、土地・家屋、株式・出資、その他の財産）をまとめています。区分を選ぶと、テーマごとの説明と、関係する通達・記事のタイトルを一覧にします。スペース区切りで複数語を指定でき、「-語」で除外できます。ひらがな・カタカナの読みでも検索できます。</p>
     </section>
 
     <!-- 国税庁の記事 -->
