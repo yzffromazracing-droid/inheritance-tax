@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>相続税区分辞書</title>
+  <meta name="claude:viewport-fit-sides" content="cover">
+  <meta name="description" content="相続税・贈与税・財産評価の通達・タックスアンサー・質疑応答事例・文書回答事例（国税庁ホームページ）をキーワードと区分で調べられる辞書">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1>相続税区分辞書</h1>
+    <nav class="tabs" role="tablist">
+      <button class="tab is-active" role="tab" data-tab="dict" aria-selected="true">辞書</button>
+      <button class="tab" role="tab" data-tab="sozoku" aria-selected="false">相続税</button>
+      <button class="tab" role="tab" data-tab="zoyo" aria-selected="false">贈与税</button>
+      <button class="tab" role="tab" data-tab="zaisan" aria-selected="false">財産評価</button>
+      <button class="tab" role="tab" data-tab="nta" aria-selected="false">国税庁の記事</button>
+      <button class="tab" role="tab" data-tab="tsu" aria-selected="false">通達</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- 辞書（すべての出典の横断検索） -->
+    <section id="tab-dict" class="panel" role="tabpanel">
+      <div class="search-box">
+        <input id="dict-q" type="search" placeholder="例：小規模宅地、かしやたてつけち、3-1、名義預金" autocomplete="off" aria-label="すべての項目をキーワードで検索">
+      </div>
+      <div class="filters">
+        <div id="dict-type-filters" class="chips" aria-label="資料の種類で絞り込み"></div>
+        <select id="dict-category-filter" class="select" aria-label="出典と分類で絞り込み"></select>
+      </div>
+      <p id="dict-count" class="count"></p>
+      <ul id="dict-results" class="results"></ul>
+      <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>収録しているすべての通達・記事をまとめて検索できます。スペース区切りで複数語を指定でき（すべてを含むものを表示）、「-語」で除外できます。検索語は本文にも一致します。ひらがな・カタカナの読み（例：れきねんかぜい）でも検索できます。テーマごとに整理した一覧は「相続税」「贈与税」「財産評価」タブで見られます。</p>
+    </section>
+
+    <!-- 相続税（区分ごとの横断検索） -->
+    <section id="tab-sozoku" class="panel" role="tabpanel" hidden>
+      <div class="search-box">
+        <input id="sozoku-q" type="search" placeholder="例：小規模宅地 老人ホーム、かしやたてつけち、3-1、名義" autocomplete="off" aria-label="相続税の項目をキーワードで検索">
+      </div>
+      <div class="filters">
+        <div id="sozoku-type-filters" class="chips" aria-label="区分で絞り込み"></div>
+        <div id="sozoku-topic-filters" class="chips" aria-label="テーマで絞り込み" hidden></div>
+        <select id="sozoku-category-filter" class="select" aria-label="出典と分類で絞り込み"></select>
+      </div>
+      <p id="sozoku-count" class="count"></p>
+      <ul id="sozoku-results" class="results"></ul>
+      <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>区分を選ぶと、テーマごとの説明と、関係する通達・記事のタイトルを一覧にします。財産の評価は「財産評価」タブにまとめています。スペース区切りで複数語を指定でき（すべてを含むものを表示）、「-語」で除外できます。検索語は本文にも一致します。ひらがな・カタカナの読み（例：かしやたてつけち）でも検索できます。</p>
+    </section>
+
+    <!-- 贈与税（区分ごとの横断検索） -->
+    <section id="tab-zoyo" class="panel" role="tabpanel" hidden>
+      <div class="search-box">
+        <input id="zoyo-q" type="search" placeholder="例：配偶者控除、住宅取得等資金、れきねんかぜい、名義変更" autocomplete="off" aria-label="贈与税の項目をキーワードで検索">
+      </div>
+      <div class="filters">
+        <div id="zoyo-type-filters" class="chips" aria-label="区分で絞り込み"></div>
+        <div id="zoyo-topic-filters" class="chips" aria-label="テーマで絞り込み" hidden></div>
+        <select id="zoyo-category-filter" class="select" aria-label="出典と分類で絞り込み"></select>
+      </div>
+      <p id="zoyo-count" class="count"></p>
+      <ul id="zoyo-results" class="results"></ul>
+      <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>区分を選ぶと、テーマごとの説明と、関係する通達・記事のタイトルを一覧にします。財産の評価は「財産評価」タブにまとめています。スペース区切りで複数語を指定でき、「-語」で除外できます。ひらがな・カタカナの読みでも検索できます。</p>
+    </section>
+
+    <!-- 財産評価（区分ごとの横断検索） -->
+    <section id="tab-zaisan" class="panel" role="tabpanel" hidden>
+      <div class="search-box">
+        <input id="zaisan-q" type="search" placeholder="例：貸家建付地、るいじぎょうしゅ、20-2、配偶者居住権" autocomplete="off" aria-label="財産評価の項目をキーワードで検索">
+      </div>
+      <div class="filters">
+        <div id="zaisan-type-filters" class="chips" aria-label="区分で絞り込み"></div>
+        <div id="zaisan-topic-filters" class="chips" aria-label="テーマで絞り込み" hidden></div>
+        <select id="zaisan-category-filter" class="select" aria-label="出典と分類で絞り込み"></select>
+      </div>
+      <p id="zaisan-count" class="count"></p>
+      <ul id="zaisan-results" class="results"></ul>
+      <p class="source">出典：国税庁ホームページ（財産評価基本通達・相続税法基本通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>相続税・贈与税に共通する財産の評価（評価の原則、土地・家屋、株式・出資、その他の財産）をまとめています。区分を選ぶと、テーマごとの説明と、関係する通達・記事のタイトルを一覧にします。スペース区切りで複数語を指定でき、「-語」で除外できます。ひらがな・カタカナの読みでも検索できます。</p>
+    </section>
+
+    <!-- 国税庁の記事 -->
+    <section id="tab-nta" class="panel" role="tabpanel" hidden>
+      <nav class="subtabs" role="tablist" aria-label="記事の種類">
+        <button class="subtab is-active" role="tab" data-sub="ta" aria-selected="true">タックスアンサー</button>
+        <button class="subtab" role="tab" data-sub="qa" aria-selected="false">質疑応答事例</button>
+        <button class="subtab" role="tab" data-sub="bk" aria-selected="false">文書回答事例</button>
+      </nav>
+
+      <div id="sub-ta" class="subpanel" role="tabpanel">
+        <div class="search-box">
+          <input id="ta-q" type="search" placeholder="例：4124、死亡保険金、暦年課税、路線価" autocomplete="off" aria-label="タックスアンサーを検索">
+        </div>
+        <div class="filters">
+          <select id="ta-category-filter" class="select" aria-label="分類で絞り込み"></select>
+        </div>
+        <p id="ta-count" class="count"></p>
+        <ul id="ta-results" class="results"></ul>
+        <p class="source">出典：<a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/code/index.htm#code04" target="_blank" rel="noopener">タックスアンサー（相続税・贈与税・財産の評価）</a>（国税庁ホームページ）　取得日：<span class="fetched"></span><br>記事を開くと全文を表示します。図は説明文と原文へのリンクで示しているため、図を含む記事や最新の内容は必ずリンク先の原文でご確認ください。</p>
+      </div>
+
+      <div id="sub-qa" class="subpanel" role="tabpanel" hidden>
+        <div class="search-box">
+          <input id="qa-q" type="search" placeholder="例：老人ホーム、代襲相続、地積規模、類似業種" autocomplete="off" aria-label="質疑応答事例を検索">
+        </div>
+        <div class="filters">
+          <select id="qa-category-filter" class="select" aria-label="分類で絞り込み"></select>
+        </div>
+        <p id="qa-count" class="count"></p>
+        <ul id="qa-results" class="results"></ul>
+        <p class="source">出典：<a href="https://www.nta.go.jp/law/shitsugi/sozoku/01.htm" target="_blank" rel="noopener">質疑応答事例（相続税・贈与税）</a>・<a href="https://www.nta.go.jp/law/shitsugi/hyoka/01.htm" target="_blank" rel="noopener">質疑応答事例（財産の評価）</a>（国税庁ホームページ）　取得日：<span class="fetched"></span><br>事例を開くと全文（照会要旨・回答要旨・関係法令通達・注記）を表示します。最新の内容は必ずリンク先の原文でご確認ください。</p>
+      </div>
+
+      <div id="sub-bk" class="subpanel" role="tabpanel" hidden>
+        <div class="search-box">
+          <input id="bk-q" type="search" placeholder="例：保険、医療法人、東京国税局、平成23年" autocomplete="off" aria-label="文書回答事例を検索">
+        </div>
+        <div class="filters">
+          <select id="bk-category-filter" class="select" aria-label="分類で絞り込み"></select>
+        </div>
+        <p id="bk-count" class="count"></p>
+        <ul id="bk-results" class="results"></ul>
+        <p class="source">出典：文書回答事例（<a href="https://www.nta.go.jp/law/bunshokaito/sozoku/05_1.htm" target="_blank" rel="noopener">相続税</a>・<a href="https://www.nta.go.jp/law/bunshokaito/zoyo/06_1.htm" target="_blank" rel="noopener">贈与税</a>・<a href="https://www.nta.go.jp/law/bunshokaito/hyoka/07_1.htm" target="_blank" rel="noopener">財産の評価</a>、項目別）（国税庁ホームページ）　取得日：<span class="fetched"></span><br>事例を開くと全文（照会・回答と、同じ事例の別紙ページの照会の趣旨・事実関係・理由など）を表示します。文書回答は照会者が示した事実関係を前提としたものです。PDFの添付資料は掲載していないため、必ずリンク先の原文でご確認ください。</p>
+      </div>
+    </section>
+
+    <!-- 通達 -->
+    <section id="tab-tsu" class="panel" role="tabpanel" hidden>
+      <nav class="subtabs" role="tablist" aria-label="通達の種類">
+        <button class="subtab is-active" role="tab" data-sub="kihon" aria-selected="true">相続税法基本通達</button>
+        <button class="subtab" role="tab" data-sub="hyoka" aria-selected="false">財産評価基本通達</button>
+        <button class="subtab" role="tab" data-sub="so" aria-selected="false">措置法通達</button>
+        <button class="subtab" role="tab" data-sub="kobetsu" aria-selected="false">個別通達</button>
+      </nav>
+
+      <div id="sub-kihon" class="subpanel" role="tabpanel">
+        <div class="search-box">
+          <input id="kihon-q" type="search" placeholder="例：3-1、保険金受取人、配偶者に対する相続税額の軽減" autocomplete="off" aria-label="相続税法基本通達を検索">
+        </div>
+        <div class="filters">
+          <select id="kihon-category-filter" class="select" aria-label="章で絞り込み"></select>
+        </div>
+        <p id="kihon-count" class="count"></p>
+        <ul id="kihon-results" class="results"></ul>
+        <p class="source">出典：<a href="https://www.nta.go.jp/law/tsutatsu/kihon/sisan/sozoku2/01.htm" target="_blank" rel="noopener">相続税法基本通達</a>（国税庁ホームページ）　取得日：<span class="fetched"></span><br>国税庁の目次（章・節・条）の順に掲載しています。通達を開くと全文（注書き・改正経過を含む）を表示します。最新の内容は必ずリンク先の原文でご確認ください。</p>
+      </div>
+
+      <div id="sub-hyoka" class="subpanel" role="tabpanel" hidden>
+        <div class="search-box">
+          <input id="hyoka-q" type="search" placeholder="例：20-2、路線価、貸家建付地、純資産価額" autocomplete="off" aria-label="財産評価基本通達を検索">
+        </div>
+        <div class="filters">
+          <select id="hyoka-category-filter" class="select" aria-label="章で絞り込み"></select>
+        </div>
+        <p id="hyoka-count" class="count"></p>
+        <ul id="hyoka-results" class="results"></ul>
+        <p class="source">出典：<a href="https://www.nta.go.jp/law/tsutatsu/kihon/sisan/hyoka_new/01.htm" target="_blank" rel="noopener">財産評価基本通達</a>（国税庁ホームページ）　取得日：<span class="fetched"></span><br>国税庁の目次（章・節）の順に掲載しています。最新の内容は必ずリンク先の原文でご確認ください。</p>
+      </div>
+
+      <div id="sub-so" class="subpanel" role="tabpanel" hidden>
+        <div class="search-box">
+          <input id="so-q" type="search" placeholder="例：69の4-1、生計を一にしていた、特例農地等、事業承継" autocomplete="off" aria-label="措置法通達を検索">
+        </div>
+        <div class="filters">
+          <select id="so-category-filter" class="select" aria-label="条で絞り込み"></select>
+        </div>
+        <p id="so-count" class="count"></p>
+        <ul id="so-results" class="results"></ul>
+        <p class="source">出典：<a href="https://www.nta.go.jp/law/tsutatsu/kobetsu/sozoku/sochiho/080708/01.htm" target="_blank" rel="noopener">租税特別措置法（相続税法の特例関係）の取扱いについて</a>（国税庁ホームページ）　取得日：<span class="fetched"></span><br>国税庁の目次（条）の順に掲載しています。最新の内容は必ずリンク先の原文でご確認ください。</p>
+      </div>
+
+      <div id="sub-kobetsu" class="subpanel" role="tabpanel" hidden>
+        <div class="search-box">
+          <input id="kobetsu-q" type="search" placeholder="例：使用貸借、相当の地代、基準年利率、類似業種" autocomplete="off" aria-label="個別通達を検索">
+        </div>
+        <div class="filters">
+          <select id="kobetsu-category-filter" class="select" aria-label="分類で絞り込み"></select>
+        </div>
+        <p id="kobetsu-count" class="count"></p>
+        <ul id="kobetsu-results" class="results"></ul>
+        <p class="source">出典：個別通達（<a href="https://www.nta.go.jp/law/tsutatsu/kobetsu/sozoku/souzoku.htm" target="_blank" rel="noopener">相続税関係</a>・<a href="https://www.nta.go.jp/law/tsutatsu/kobetsu/hyoka/zaisan.htm" target="_blank" rel="noopener">財産評価関係</a>）（国税庁ホームページ）　取得日：<span class="fetched"></span><br>国税庁の目次（発遣日の新しい順）に掲載しています。業種目別株価の一覧表などPDFの資料は掲載していないため、リンク先の原文でご確認ください。</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>本辞書は国税庁ホームページの公開情報を取得して整理したもので、国税庁の公式サービスではありません。区分・テーマの説明は本辞書による概要です。実際の適用は必ず原文や税理士にご確認ください。<span id="item-total"></span></p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
