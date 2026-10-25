@@ -1,637 +1,163 @@
 <!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>相続税区分辞書</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;700&family=BIZ+UDPGothic:wght@400;700&display=swap">
-<style>
-/* Layout: 法令集の索引をモデルにした三段組（区分索引 / 検索結果 / 本文）。狭い画面では一段に畳む。 */
-:root {
-  --paper: #f5f6f4;
-  --sheet: #ffffff;
-  --ink: #1d232b;
-  --ink-soft: #57606b;
-  --rule: #d9ddd8;
-  --rule-strong: #b9c0ba;
-  --ai: #24477a;          /* 藍：通達・アクセント */
-  --ai-wash: #e7edf6;
-  --rokusho: #2c7563;     /* 緑青：タックスアンサー */
-  --rokusho-wash: #e3f0ec;
-  --fuji: #6f4a86;        /* 藤：質疑応答事例 */
-  --fuji-wash: #efe8f4;
-  --shu: #b8432f;         /* 朱：検索語ハイライトの印 */
-  --mark: #fbe9a6;
-  --font-display: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
-  --font-body: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
-  --step--1: 0.8125rem;
-  --step-0: 0.9375rem;
-  --step-1: 1.125rem;
-  --step-2: 1.4rem;
-  --step-3: 1.85rem;
-  --radius: 6px;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper: #14181d; --sheet: #1b2027; --ink: #e4e7ea; --ink-soft: #9aa3ad;
-    --rule: #2c333c; --rule-strong: #3d4651;
-    --ai: #8fb1e4; --ai-wash: #1e2a3b; --rokusho: #7cc7b2; --rokusho-wash: #17302a;
-    --fuji: #c5a3dc; --fuji-wash: #2a2133; --shu: #ef8a72; --mark: #5a4a12;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --paper: #14181d; --sheet: #1b2027; --ink: #e4e7ea; --ink-soft: #9aa3ad;
-  --rule: #2c333c; --rule-strong: #3d4651;
-  --ai: #8fb1e4; --ai-wash: #1e2a3b; --rokusho: #7cc7b2; --rokusho-wash: #17302a;
-  --fuji: #c5a3dc; --fuji-wash: #2a2133; --shu: #ef8a72; --mark: #5a4a12;
-  color-scheme: dark;
-}
-* { box-sizing: border-box; }
-[hidden] { display: none !important; }
-html, body { height: 100%; }
-body {
-  margin: 0; background: var(--paper); color: var(--ink);
-  font-family: var(--font-body); font-size: var(--step-0); line-height: 1.7;
-  display: flex; flex-direction: column;
-}
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--sheet); }
-button, input, select { font: inherit; color: inherit; }
-:focus-visible { outline: 2px solid var(--ai); outline-offset: 2px; }
-a { color: var(--ai); }
-
-/* ---------- header */
-.masthead {
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
-  background: var(--sheet); border-bottom: 1px solid var(--rule);
-  padding-block: 12px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 24px;
-}
-.brand { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
-.brand h1 { font-family: var(--font-display); font-size: var(--step-2); margin: 0; letter-spacing: 0.08em; font-weight: 700; white-space: nowrap; }
-.brand .sub { color: var(--ink-soft); font-size: var(--step--1); white-space: nowrap; }
-.searchbox { flex: 1 1 360px; display: flex; gap: 8px; min-width: 0; }
-.searchbox input {
-  flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid var(--rule-strong);
-  border-radius: var(--radius); background: var(--paper);
-}
-.searchbox input:focus { border-color: var(--ai); outline: none; box-shadow: 0 0 0 3px var(--ai-wash); }
-.btn {
-  border: 1px solid var(--rule-strong); background: var(--sheet); border-radius: var(--radius);
-  padding: 7px 12px; cursor: pointer; white-space: nowrap;
-}
-.btn:hover { border-color: var(--ai); color: var(--ai); }
-.only-narrow { display: none; }
-
-/* ---------- three panes */
-.panes { flex: 1; display: grid; grid-template-columns: 280px minmax(0, 1fr) minmax(0, 1.25fr); min-height: 0; }
-.pane { min-width: 0; min-height: 0; overflow-y: auto; }
-.index-pane { background: var(--sheet); border-right: 1px solid var(--rule); padding: 16px 16px 40px; }
-.list-pane { padding: 0 0 40px; border-right: 1px solid var(--rule); }
-.detail-pane { background: var(--sheet); padding: 24px 28px 60px; }
-
-.facet + .facet { margin-top: 22px; }
-.facet h2 {
-  font-size: var(--step--1); letter-spacing: 0.12em; color: var(--ink-soft);
-  margin: 0 0 8px; font-weight: 700; display: flex; justify-content: space-between; align-items: center;
-}
-.facet h2 button { border: 0; background: none; color: var(--ai); cursor: pointer; font-size: var(--step--1); padding: 0; letter-spacing: 0; }
-.types { display: grid; gap: 6px; }
-.type-toggle {
-  display: grid; grid-template-columns: 12px 1fr auto; align-items: center; gap: 10px;
-  padding: 7px 10px; border: 1px solid var(--rule); border-radius: var(--radius);
-  background: var(--sheet); cursor: pointer; text-align: left;
-}
-.type-toggle .sw { width: 12px; height: 12px; border-radius: 2px; background: var(--c); }
-.type-toggle[aria-pressed="false"] { opacity: 0.55; }
-.type-toggle[aria-pressed="false"] .sw { background: transparent; border: 1.5px solid var(--c); }
-.count { font-variant-numeric: tabular-nums; color: var(--ink-soft); font-size: var(--step--1); }
-.topic-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
-.topic-list button {
-  width: 100%; display: flex; justify-content: space-between; gap: 8px; text-align: left;
-  border: 0; background: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; line-height: 1.45;
-}
-.topic-list button:hover { background: var(--paper); }
-.topic-list button[aria-pressed="true"] { background: var(--ai-wash); color: var(--ai); font-weight: 700; }
-.topic-list button[disabled] { opacity: 0.4; cursor: default; }
-.tree details { border-top: 1px solid var(--rule); }
-.tree details:last-child { border-bottom: 1px solid var(--rule); }
-.tree summary { cursor: pointer; padding: 6px 2px; font-weight: 700; display: flex; justify-content: space-between; gap: 6px; list-style: none; }
-.tree summary::-webkit-details-marker { display: none; }
-.tree summary::before { content: "▸"; color: var(--ink-soft); margin-right: 4px; }
-.tree details[open] > summary::before { content: "▾"; }
-.tree summary span:first-child { flex: 1; }
-.tree .cat { display: flex; justify-content: space-between; gap: 6px; width: 100%; text-align: left; border: 0; background: none; padding: 3px 4px 3px 18px; cursor: pointer; font-size: var(--step--1); line-height: 1.5; border-radius: 4px; color: var(--ink); }
-.tree .cat:hover { background: var(--paper); }
-.tree .cat[aria-pressed="true"] { background: var(--ai-wash); color: var(--ai); font-weight: 700; }
-.tree .cat-wrap { padding-bottom: 8px; display: grid; }
-
-/* ---------- results */
-.list-head {
-  position: sticky; top: 0; z-index: 2; background: var(--paper);
-  padding: 12px 20px 10px; border-bottom: 1px solid var(--rule);
-  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
-}
-.list-head .total { font-weight: 700; font-variant-numeric: tabular-nums; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { display: inline-flex; align-items: center; gap: 6px; padding: 1px 4px 1px 10px; border-radius: 999px; background: var(--ai-wash); color: var(--ai); font-size: var(--step--1); }
-.chip button { border: 0; background: none; color: inherit; cursor: pointer; padding: 0 4px; font-size: 1rem; line-height: 1; }
-.sort { margin-left: auto; font-size: var(--step--1); color: var(--ink-soft); }
-.sort select { padding: 2px 4px; border: 1px solid var(--rule-strong); border-radius: 4px; background: var(--sheet); }
-.results { list-style: none; margin: 0; padding: 0; }
-.result {
-  display: block; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--rule);
-  padding: 12px 20px 12px 17px; cursor: pointer; border-left: 3px solid transparent;
-}
-.result:hover { background: var(--sheet); }
-.result[aria-current="true"] { background: var(--sheet); border-left-color: var(--c); }
-.result .meta { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; font-size: var(--step--1); color: var(--ink-soft); }
-.badge { display: inline-block; padding: 0 7px; border-radius: 3px; font-size: 0.75rem; font-weight: 700; color: var(--c); background: var(--w); letter-spacing: 0.04em; }
-.num { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink); }
-.result .title { font-weight: 700; margin: 2px 0 2px; line-height: 1.5; }
-.result .snip { color: var(--ink-soft); font-size: var(--step--1); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-mark { background: var(--mark); color: inherit; padding: 0 1px; border-radius: 2px; }
-.more { display: block; margin: 16px auto; }
-.empty { padding: 40px 20px; color: var(--ink-soft); }
-
-[data-type="通達"] { --c: var(--ai); --w: var(--ai-wash); }
-[data-type="タックスアンサー"] { --c: var(--rokusho); --w: var(--rokusho-wash); }
-[data-type="質疑応答事例"] { --c: var(--fuji); --w: var(--fuji-wash); }
-
-/* ---------- detail */
-.detail-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
-.crumbs { font-size: var(--step--1); color: var(--ink-soft); line-height: 1.6; }
-.crumbs span + span::before { content: " ／ "; color: var(--rule-strong); }
-.detail h2.dtitle { font-family: var(--font-display); font-size: var(--step-3); line-height: 1.35; margin: 10px 0 6px; text-wrap: balance; letter-spacing: 0.02em; }
-.detail .dnum { font-family: var(--font-display); color: var(--c); font-size: var(--step-1); margin-right: 8px; }
-.detail .facts { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: var(--step--1); color: var(--ink-soft); margin-bottom: 14px; }
-.topic-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 18px; }
-.topic-tags button { border: 1px solid var(--rule-strong); background: none; border-radius: 999px; padding: 1px 10px; font-size: var(--step--1); cursor: pointer; }
-.topic-tags button:hover { border-color: var(--ai); color: var(--ai); }
-.body { max-width: 46em; border-top: 1px solid var(--rule); padding-top: 14px; overflow-wrap: anywhere; }
-.body h2 { font-size: var(--step-1); margin: 1.4em 0 0.4em; padding-left: 10px; border-left: 3px solid var(--c); line-height: 1.5; }
-.body h3 { font-size: var(--step-0); margin: 1.2em 0 0.3em; }
-.body p { margin: 0.45em 0; }
-.body p.indent1 { padding-left: 1em; text-indent: -1em; }
-.body p.indent2 { padding-left: 2em; text-indent: -1em; }
-.body p.indent3 { padding-left: 3em; text-indent: -1em; }
-.body p.indent4, .body p.indent5 { padding-left: 4em; text-indent: -1em; }
-.body .tablewrap { overflow-x: auto; margin: 0.8em 0; }
-.body table { border-collapse: collapse; font-size: var(--step--1); }
-.body th, .body td { border: 1px solid var(--rule-strong); padding: 4px 8px; vertical-align: top; }
-.body th { background: var(--paper); }
-.body .img { color: var(--ink-soft); font-size: var(--step--1); }
-.body a.xref { text-decoration: none; border-bottom: 1px dashed var(--ai); }
-.source-link { display: inline-flex; gap: 6px; align-items: center; margin-top: 22px; font-size: var(--step--1); }
-.related { margin-top: 34px; max-width: 46em; }
-.related h3 { font-size: var(--step--1); letter-spacing: 0.12em; color: var(--ink-soft); margin: 0 0 8px; }
-.related ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
-.related li button { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: baseline; width: 100%; text-align: left; border: 0; background: none; padding: 5px 6px; border-radius: 4px; cursor: pointer; line-height: 1.5; }
-.related li button:hover { background: var(--paper); }
-.welcome h2 { font-family: var(--font-display); font-size: var(--step-3); margin: 6px 0 10px; }
-.welcome p { max-width: 38em; }
-.stat-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
-.stat { border: 1px solid var(--rule); border-radius: var(--radius); padding: 10px 14px; min-width: 140px; }
-.stat b { display: block; font-size: var(--step-2); font-variant-numeric: tabular-nums; color: var(--c); font-family: var(--font-display); }
-.stat span { font-size: var(--step--1); color: var(--ink-soft); }
-.examples { display: flex; flex-wrap: wrap; gap: 6px; }
-.note { font-size: var(--step--1); color: var(--ink-soft); margin-top: 24px; max-width: 42em; }
-.loading { padding: 40px 20px; color: var(--ink-soft); }
-
-/* ---------- narrow screens */
-@media (max-width: 1100px) {
-  .panes { grid-template-columns: 250px minmax(0, 1fr); }
-  .detail-pane { position: fixed; inset: 0; z-index: 20; padding-top: calc(16px + env(safe-area-inset-top, 0px)); padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-  .detail-pane:not(.open) { display: none; }
-  .only-narrow { display: inline-block; }
-}
-@media (max-width: 720px) {
-  .panes { grid-template-columns: minmax(0, 1fr); }
-  .index-pane { position: fixed; inset: 0; z-index: 15; padding-top: calc(16px + env(safe-area-inset-top, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-  .index-pane:not(.open) { display: none; }
-  .list-head, .result { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-  .brand .sub { display: none; }
-  .detail h2.dtitle { font-size: var(--step-2); }
-}
-@media (min-width: 721px) { .filters-btn { display: none; } }
-@media (prefers-reduced-motion: no-preference) { .result, .topic-list button, .btn { transition: background-color .12s, border-color .12s, color .12s; } }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>相続税区分辞書</title>
+  <meta name="claude:viewport-fit-sides" content="cover">
+  <meta name="description" content="相続税・贈与税・財産評価の通達・タックスアンサー・質疑応答事例・文書回答事例（国税庁ホームページ）をキーワードと区分で調べられる辞書">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="masthead">
-  <div class="brand">
+  <header class="site-header">
     <h1>相続税区分辞書</h1>
-    <span class="sub">通達・タックスアンサー・質疑応答事例</span>
-  </div>
-  <form class="searchbox" id="search-form" role="search">
-    <input id="q" type="search" placeholder="語句で検索（例：小規模宅地 老人ホーム、貸家建付地、3-1）" autocomplete="off" aria-label="キーワード検索">
-    <button class="btn filters-btn" type="button" id="open-filters">区分</button>
-  </form>
-</header>
+    <nav class="tabs" role="tablist">
+      <button class="tab is-active" role="tab" data-tab="sozoku" aria-selected="true">相続税</button>
+      <button class="tab" role="tab" data-tab="zoyo" aria-selected="false">贈与税</button>
+      <button class="tab" role="tab" data-tab="nta" aria-selected="false">国税庁の記事</button>
+      <button class="tab" role="tab" data-tab="tsu" aria-selected="false">通達</button>
+    </nav>
+  </header>
 
-<div class="panes">
-  <nav class="pane index-pane" id="index-pane" aria-label="区分">
-    <section class="facet">
-      <h2>資料の種類</h2>
-      <div class="types" id="types"></div>
+  <main>
+    <!-- 相続税（区分ごとの横断検索） -->
+    <section id="tab-sozoku" class="panel" role="tabpanel">
+      <div class="search-box">
+        <input id="sozoku-q" type="search" placeholder="例：小規模宅地 老人ホーム、かしやたてつけち、3-1、名義" autocomplete="off" aria-label="相続税の項目をキーワードで検索">
+      </div>
+      <div class="filters">
+        <div id="sozoku-type-filters" class="chips" aria-label="区分で絞り込み"></div>
+        <div id="sozoku-topic-filters" class="chips" aria-label="テーマで絞り込み" hidden></div>
+        <select id="sozoku-category-filter" class="select" aria-label="出典と分類で絞り込み"></select>
+      </div>
+      <p id="sozoku-count" class="count"></p>
+      <ul id="sozoku-results" class="results"></ul>
+      <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>区分を選ぶと、テーマごとの説明と、関係する通達・記事のタイトルを一覧にします。スペース区切りで複数語を指定でき（すべてを含むものを表示）、「-語」で除外できます。検索語は本文にも一致します。ひらがな・カタカナの読み（例：かしやたてつけち）でも検索できます。</p>
     </section>
-    <section class="facet">
-      <h2>相続税区分 <button type="button" id="clear-topic" hidden>解除</button></h2>
-      <ul class="topic-list" id="topics"></ul>
-    </section>
-    <section class="facet">
-      <h2>出典の目次 <button type="button" id="clear-cat" hidden>解除</button></h2>
-      <div class="tree" id="tree"></div>
-    </section>
-    <p class="note" id="gen-note"></p>
-    <button class="btn filters-btn" type="button" id="close-filters" style="margin-top:16px">結果を見る</button>
-  </nav>
 
-  <main class="pane list-pane" id="list-pane">
-    <div class="list-head">
-      <span class="total" id="total">読み込み中…</span>
-      <div class="chips" id="chips"></div>
-      <label class="sort">並び順
-        <select id="sort">
-          <option value="rel">関連度</option>
-          <option value="src">出典順</option>
-        </select>
-      </label>
-    </div>
-    <ul class="results" id="results"></ul>
-    <button class="btn more" type="button" id="more" hidden>さらに表示</button>
+    <!-- 贈与税（区分ごとの横断検索） -->
+    <section id="tab-zoyo" class="panel" role="tabpanel" hidden>
+      <div class="search-box">
+        <input id="zoyo-q" type="search" placeholder="例：配偶者控除、住宅取得等資金、れきねんかぜい、名義変更" autocomplete="off" aria-label="贈与税の項目をキーワードで検索">
+      </div>
+      <div class="filters">
+        <div id="zoyo-type-filters" class="chips" aria-label="区分で絞り込み"></div>
+        <div id="zoyo-topic-filters" class="chips" aria-label="テーマで絞り込み" hidden></div>
+        <select id="zoyo-category-filter" class="select" aria-label="出典と分類で絞り込み"></select>
+      </div>
+      <p id="zoyo-count" class="count"></p>
+      <ul id="zoyo-results" class="results"></ul>
+      <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>区分を選ぶと、テーマごとの説明と、関係する通達・記事のタイトルを一覧にします。財産評価の区分は相続税タブと共通です。スペース区切りで複数語を指定でき、「-語」で除外できます。ひらがな・カタカナの読みでも検索できます。</p>
+    </section>
+
+    <!-- 国税庁の記事 -->
+    <section id="tab-nta" class="panel" role="tabpanel" hidden>
+      <nav class="subtabs" role="tablist" aria-label="記事の種類">
+        <button class="subtab is-active" role="tab" data-sub="ta" aria-selected="true">タックスアンサー</button>
+        <button class="subtab" role="tab" data-sub="qa" aria-selected="false">質疑応答事例</button>
+        <button class="subtab" role="tab" data-sub="bk" aria-selected="false">文書回答事例</button>
+      </nav>
+
+      <div id="sub-ta" class="subpanel" role="tabpanel">
+        <div class="search-box">
+          <input id="ta-q" type="search" placeholder="例：4124、死亡保険金、暦年課税、路線価" autocomplete="off" aria-label="タックスアンサーを検索">
+        </div>
+        <div class="filters">
+          <select id="ta-category-filter" class="select" aria-label="分類で絞り込み"></select>
+        </div>
+        <p id="ta-count" class="count"></p>
+        <ul id="ta-results" class="results"></ul>
+        <p class="source">出典：<a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/code/index.htm#code04" target="_blank" rel="noopener">タックスアンサー（相続税・贈与税・財産の評価）</a>（国税庁ホームページ）　取得日：<span class="fetched"></span><br>記事を開くと全文を表示します。図は説明文と原文へのリンクで示しているため、図を含む記事や最新の内容は必ずリンク先の原文でご確認ください。</p>
+      </div>
+
+      <div id="sub-qa" class="subpanel" role="tabpanel" hidden>
+        <div class="search-box">
+          <input id="qa-q" type="search" placeholder="例：老人ホーム、代襲相続、地積規模、類似業種" autocomplete="off" aria-label="質疑応答事例を検索">
+        </div>
+        <div class="filters">
+          <select id="qa-category-filter" class="select" aria-label="分類で絞り込み"></select>
+        </div>
+        <p id="qa-count" class="count"></p>
+        <ul id="qa-results" class="results"></ul>
+        <p class="source">出典：<a href="https://www.nta.go.jp/law/shitsugi/sozoku/01.htm" target="_blank" rel="noopener">質疑応答事例（相続税・贈与税）</a>・<a href="https://www.nta.go.jp/law/shitsugi/hyoka/01.htm" target="_blank" rel="noopener">質疑応答事例（財産の評価）</a>（国税庁ホームページ）　取得日：<span class="fetched"></span><br>事例を開くと全文（照会要旨・回答要旨・関係法令通達・注記）を表示します。最新の内容は必ずリンク先の原文でご確認ください。</p>
+      </div>
+
+      <div id="sub-bk" class="subpanel" role="tabpanel" hidden>
+        <div class="search-box">
+          <input id="bk-q" type="search" placeholder="例：保険、医療法人、東京国税局、平成23年" autocomplete="off" aria-label="文書回答事例を検索">
+        </div>
+        <div class="filters">
+          <select id="bk-category-filter" class="select" aria-label="分類で絞り込み"></select>
+        </div>
+        <p id="bk-count" class="count"></p>
+        <ul id="bk-results" class="results"></ul>
+        <p class="source">出典：文書回答事例（<a href="https://www.nta.go.jp/law/bunshokaito/sozoku/05_1.htm" target="_blank" rel="noopener">相続税</a>・<a href="https://www.nta.go.jp/law/bunshokaito/zoyo/06_1.htm" target="_blank" rel="noopener">贈与税</a>・<a href="https://www.nta.go.jp/law/bunshokaito/hyoka/07_1.htm" target="_blank" rel="noopener">財産の評価</a>、項目別）（国税庁ホームページ）　取得日：<span class="fetched"></span><br>事例を開くと全文（照会・回答と、同じ事例の別紙ページの照会の趣旨・事実関係・理由など）を表示します。文書回答は照会者が示した事実関係を前提としたものです。PDFの添付資料は掲載していないため、必ずリンク先の原文でご確認ください。</p>
+      </div>
+    </section>
+
+    <!-- 通達 -->
+    <section id="tab-tsu" class="panel" role="tabpanel" hidden>
+      <nav class="subtabs" role="tablist" aria-label="通達の種類">
+        <button class="subtab is-active" role="tab" data-sub="kihon" aria-selected="true">相続税法基本通達</button>
+        <button class="subtab" role="tab" data-sub="hyoka" aria-selected="false">財産評価基本通達</button>
+        <button class="subtab" role="tab" data-sub="so" aria-selected="false">措置法通達</button>
+        <button class="subtab" role="tab" data-sub="kobetsu" aria-selected="false">個別通達</button>
+      </nav>
+
+      <div id="sub-kihon" class="subpanel" role="tabpanel">
+        <div class="search-box">
+          <input id="kihon-q" type="search" placeholder="例：3-1、保険金受取人、配偶者に対する相続税額の軽減" autocomplete="off" aria-label="相続税法基本通達を検索">
+        </div>
+        <div class="filters">
+          <select id="kihon-category-filter" class="select" aria-label="章で絞り込み"></select>
+        </div>
+        <p id="kihon-count" class="count"></p>
+        <ul id="kihon-results" class="results"></ul>
+        <p class="source">出典：<a href="https://www.nta.go.jp/law/tsutatsu/kihon/sisan/sozoku2/01.htm" target="_blank" rel="noopener">相続税法基本通達</a>（国税庁ホームページ）　取得日：<span class="fetched"></span><br>国税庁の目次（章・節・条）の順に掲載しています。通達を開くと全文（注書き・改正経過を含む）を表示します。最新の内容は必ずリンク先の原文でご確認ください。</p>
+      </div>
+
+      <div id="sub-hyoka" class="subpanel" role="tabpanel" hidden>
+        <div class="search-box">
+          <input id="hyoka-q" type="search" placeholder="例：20-2、路線価、貸家建付地、純資産価額" autocomplete="off" aria-label="財産評価基本通達を検索">
+        </div>
+        <div class="filters">
+          <select id="hyoka-category-filter" class="select" aria-label="章で絞り込み"></select>
+        </div>
+        <p id="hyoka-count" class="count"></p>
+        <ul id="hyoka-results" class="results"></ul>
+        <p class="source">出典：<a href="https://www.nta.go.jp/law/tsutatsu/kihon/sisan/hyoka_new/01.htm" target="_blank" rel="noopener">財産評価基本通達</a>（国税庁ホームページ）　取得日：<span class="fetched"></span><br>国税庁の目次（章・節）の順に掲載しています。最新の内容は必ずリンク先の原文でご確認ください。</p>
+      </div>
+
+      <div id="sub-so" class="subpanel" role="tabpanel" hidden>
+        <div class="search-box">
+          <input id="so-q" type="search" placeholder="例：69の4-1、生計を一にしていた、特例農地等、事業承継" autocomplete="off" aria-label="措置法通達を検索">
+        </div>
+        <div class="filters">
+          <select id="so-category-filter" class="select" aria-label="条で絞り込み"></select>
+        </div>
+        <p id="so-count" class="count"></p>
+        <ul id="so-results" class="results"></ul>
+        <p class="source">出典：<a href="https://www.nta.go.jp/law/tsutatsu/kobetsu/sozoku/sochiho/080708/01.htm" target="_blank" rel="noopener">租税特別措置法（相続税法の特例関係）の取扱いについて</a>（国税庁ホームページ）　取得日：<span class="fetched"></span><br>国税庁の目次（条）の順に掲載しています。最新の内容は必ずリンク先の原文でご確認ください。</p>
+      </div>
+
+      <div id="sub-kobetsu" class="subpanel" role="tabpanel" hidden>
+        <div class="search-box">
+          <input id="kobetsu-q" type="search" placeholder="例：使用貸借、相当の地代、基準年利率、類似業種" autocomplete="off" aria-label="個別通達を検索">
+        </div>
+        <div class="filters">
+          <select id="kobetsu-category-filter" class="select" aria-label="分類で絞り込み"></select>
+        </div>
+        <p id="kobetsu-count" class="count"></p>
+        <ul id="kobetsu-results" class="results"></ul>
+        <p class="source">出典：個別通達（<a href="https://www.nta.go.jp/law/tsutatsu/kobetsu/sozoku/souzoku.htm" target="_blank" rel="noopener">相続税関係</a>・<a href="https://www.nta.go.jp/law/tsutatsu/kobetsu/hyoka/zaisan.htm" target="_blank" rel="noopener">財産評価関係</a>）（国税庁ホームページ）　取得日：<span class="fetched"></span><br>国税庁の目次（発遣日の新しい順）に掲載しています。業種目別株価の一覧表などPDFの資料は掲載していないため、リンク先の原文でご確認ください。</p>
+      </div>
+    </section>
   </main>
 
-  <article class="pane detail-pane" id="detail-pane" aria-live="polite"></article>
-</div>
+  <footer class="site-footer">
+    <p>本辞書は国税庁ホームページの公開情報を取得して整理したもので、国税庁の公式サービスではありません。区分・テーマの説明は本辞書による概要です。実際の適用は必ず原文や税理士にご確認ください。<span id="item-total"></span></p>
+  </footer>
 
-<script>
-(() => {
-  const TYPES = ["通達", "タックスアンサー", "質疑応答事例"];
-  const PAGE = 60;
-  const $ = (id) => document.getElementById(id);
-  const state = { q: "", types: new Set(TYPES), topic: null, cat: null, sort: "rel", shown: PAGE, current: null };
-  let DATA = null, ITEMS = [], BYHASH = new Map(), BYURL = new Map(), BYNUM = new Map();
-
-  const norm = (s) => (s || "").normalize("NFKC").toLowerCase().replace(/[－−‐―ー‑–—]/g, "-");
-  const normNum = (s) => norm(s).replace(/\s+/g, "");
-  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const hashOf = (id) => id.replace(/^(tsutatsu|taxanswer|shitsugi):/, (m, p) => p[0] + "-").replace(/[^A-Za-z0-9._~-]/g, "-");
-  const srcKey = (it) => it.source;
-  const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
-
-  // ------------------------------------------------ 読み込み
-  fetch("data/dictionary.json").then((r) => {
-    if (!r.ok) throw new Error(r.status);
-    return r.json();
-  }).then(init).catch((e) => {
-    $("total").textContent = "辞書データを読み込めませんでした";
-    $("results").innerHTML = `<li class="empty">data/dictionary.json を取得できませんでした（${esc(e.message)}）。ローカルで開く場合は <code>python3 -m http.server -d docs</code> などでサーバーを起動してください。</li>`;
-  });
-
-  function init(data) {
-    DATA = data;
-    ITEMS = data.items.map((it, i) => {
-      it.order = i;
-      it.hash = hashOf(it.id);
-      it._title = norm(it.title);
-      it._num = norm(it.number);
-      it._cat = norm(it.category.join(" ") + " " + (it.altCategories || []).flat().join(" "));
-      it._text = norm(it.text);
-      BYHASH.set(it.hash, it);
-      BYURL.set(it.url, it);
-      const page = it.url.split("#")[0];
-      if (!BYURL.has(page)) BYURL.set(page, it);
-      if (it.type === "通達" && it.number) BYNUM.set(it.source + "|" + normNum(it.number), it);
-      return it;
-    });
-    const counts = Object.fromEntries(TYPES.map((t) => [t, ITEMS.filter((i) => i.type === t).length]));
-    $("gen-note").innerHTML = `${esc(data.sourceNote)}<br>データ取得日：${esc(data.generated)}　収録 ${ITEMS.length.toLocaleString()} 件`;
-    const savedSort = store.get("sort");
-    if (savedSort) state.sort = $("sort").value = savedSort;
-    buildTree();
-    bind();
-    const h = decodeURIComponent(location.hash.slice(1));
-    render();
-    if (h && BYHASH.has(h)) openItem(BYHASH.get(h), false);
-    else showWelcome(counts);
-  }
-
-  // ------------------------------------------------ 検索
-  function terms() {
-    return norm(state.q).split(/[\s　]+/).filter(Boolean);
-  }
-  function score(it, ts) {
-    let s = 0;
-    for (const t of ts) {
-      let hit = false;
-      if (it._num && (it._num === t || normNum(it.number) === t.replace(/\s/g, ""))) { s += 60; hit = true; }
-      if (it._title.includes(t)) { s += 20 + (it._title === t ? 20 : 0); hit = true; }
-      if (it._cat.includes(t)) { s += 6; hit = true; }
-      if (it._text.includes(t)) {
-        let n = 0, p = -1;
-        while ((p = it._text.indexOf(t, p + 1)) !== -1 && n < 20) n++;
-        s += 1 + Math.min(n, 20) * 0.5; hit = true;
-      }
-      if (!hit) return 0;
-    }
-    return s;
-  }
-  function filtered({ ignoreType = false, ignoreTopic = false, ignoreCat = false } = {}) {
-    const ts = terms();
-    const out = [];
-    for (const it of ITEMS) {
-      if (!ignoreType && !state.types.has(it.type)) continue;
-      if (!ignoreTopic && state.topic && !it.topics.includes(state.topic)) continue;
-      if (!ignoreCat && state.cat && !(srcKey(it) === state.cat.src && catPathMatch(it, state.cat.path))) continue;
-      const sc = ts.length ? score(it, ts) : 1;
-      if (sc > 0) out.push([it, sc]);
-    }
-    return out;
-  }
-  function catPathMatch(it, path) {
-    const all = [it.category, ...(it.altCategories || [])];
-    return all.some((c) => path.every((p, i) => c[i] === p));
-  }
-
-  // ------------------------------------------------ 描画
-  function render() {
-    const rows = filtered();
-    if (state.sort === "rel" && terms().length) rows.sort((a, b) => b[1] - a[1] || a[0].order - b[0].order);
-    else rows.sort((a, b) => a[0].order - b[0].order);
-    $("total").textContent = `${rows.length.toLocaleString()} 件`;
-    renderChips();
-    renderFacets();
-    const ts = terms();
-    const list = rows.slice(0, state.shown).map(([it]) => resultHTML(it, ts)).join("");
-    $("results").innerHTML = list || `<li class="empty">該当する項目がありません。語句を短くするか、区分の絞り込みを解除してください。</li>`;
-    $("more").hidden = rows.length <= state.shown;
-    $("more").textContent = `さらに表示（残り ${(rows.length - state.shown).toLocaleString()} 件）`;
-  }
-
-  function resultHTML(it, ts) {
-    const cur = state.current === it ? ' aria-current="true"' : "";
-    const cat = it.category.slice(-1)[0] || "";
-    return `<li><button class="result" type="button" data-type="${esc(it.type)}" data-h="${esc(it.hash)}"${cur}>
-      <div class="meta"><span class="badge">${esc(shortType(it.type))}</span><span>${esc(shortSource(it.source))}</span>${it.number ? `<span class="num">${esc(it.number)}</span>` : ""}</div>
-      <div class="title">${hl(it.title, ts)}</div>
-      <div class="snip">${snippet(it, ts, cat)}</div>
-    </button></li>`;
-  }
-  const shortType = (t) => ({ "通達": "通達", "タックスアンサー": "タックスアンサー", "質疑応答事例": "質疑応答" }[t] || t);
-  const shortSource = (s) => s.replace(/^タックスアンサー（(.+)）$/, "$1").replace(/^質疑応答事例（(.+)）$/, "$1").replace("租税特別措置法（相続税法の特例関係）通達", "措置法通達（相続税法の特例関係）");
-
-  function snippet(it, ts, cat) {
-    const text = it.text;
-    if (!ts.length) return esc(lead(it).slice(0, 110));
-    const ntext = it._text;
-    let pos = -1;
-    for (const t of ts) { pos = ntext.indexOf(t); if (pos !== -1) break; }
-    if (pos === -1) return esc(text.slice(0, 110));
-    const start = Math.max(0, pos - 40);
-    return (start > 0 ? "…" : "") + hl(text.slice(start, start + 140), ts);
-  }
-  // 本文冒頭の見出し「（…）」と通達番号を除いた書き出し
-  function lead(it) {
-    let t = it.text;
-    const m = t.match(/^[（(][^）)]{0,80}[）)]\s*/);
-    if (m) t = t.slice(m[0].length);
-    t = t.replace(/^[0-9０-９][0-9０-９の・共\-－ー]*/, "");
-    return t.replace(/^[\s　]+/, "");
-  }
-  function hl(s, ts) {
-    if (!ts.length) return esc(s);
-    // NFKCで長さが変わる文字があるため、元文字列を1文字ずつ正規化して位置を対応付ける
-    const map = [], chars = [...s];
-    let n = "";
-    chars.forEach((ch, i) => { const c = norm(ch); for (let k = 0; k < c.length; k++) map.push(i); n += c; });
-    const marks = new Array(chars.length).fill(false);
-    for (const t of ts) {
-      let p = -1;
-      while ((p = n.indexOf(t, p + 1)) !== -1) for (let k = p; k < p + t.length; k++) marks[map[k]] = true;
-    }
-    let out = "", open = false;
-    chars.forEach((ch, i) => {
-      if (marks[i] && !open) { out += "<mark>"; open = true; }
-      if (!marks[i] && open) { out += "</mark>"; open = false; }
-      out += esc(ch);
-    });
-    return out + (open ? "</mark>" : "");
-  }
-
-  function renderChips() {
-    const chips = [];
-    if (state.topic) chips.push(["topic", state.topic]);
-    if (state.cat) chips.push(["cat", shortSource(state.cat.src) + (state.cat.path.length ? "：" + state.cat.path.slice(-1)[0] : "")]);
-    $("chips").innerHTML = chips.map(([k, v]) => `<span class="chip">${esc(v)}<button type="button" data-clear="${k}" aria-label="${esc(v)}の絞り込みを解除">×</button></span>`).join("");
-    $("clear-topic").hidden = !state.topic;
-    $("clear-cat").hidden = !state.cat;
-  }
-
-  function renderFacets() {
-    const byType = new Map(TYPES.map((t) => [t, 0]));
-    filtered({ ignoreType: true }).forEach(([it]) => byType.set(it.type, byType.get(it.type) + 1));
-    $("types").innerHTML = TYPES.map((t) => `<button type="button" class="type-toggle" data-type="${t}" data-t="${t}" aria-pressed="${state.types.has(t)}"><span class="sw"></span><span>${t}</span><span class="count">${byType.get(t).toLocaleString()}</span></button>`).join("");
-    const byTopic = new Map();
-    filtered({ ignoreTopic: true }).forEach(([it]) => it.topics.forEach((t) => byTopic.set(t, (byTopic.get(t) || 0) + 1)));
-    $("topics").innerHTML = DATA.topics.map((t) => {
-      const c = byTopic.get(t) || 0;
-      return `<li><button type="button" data-topic="${esc(t)}" aria-pressed="${state.topic === t}" ${c || state.topic === t ? "" : "disabled"}><span>${esc(t)}</span><span class="count">${c}</span></button></li>`;
-    }).join("");
-    const byCat = new Map();
-    filtered({ ignoreCat: true }).forEach(([it]) => {
-      const seen = new Set();
-      [it.category, ...(it.altCategories || [])].forEach((c) => {
-        for (const k of [srcKey(it), srcKey(it) + "|" + (c[0] || ""), srcKey(it) + "|" + (c[0] || "") + "|" + (c[1] || "")]) {
-          if (seen.has(k)) continue; seen.add(k); byCat.set(k, (byCat.get(k) || 0) + 1);
-        }
-      });
-    });
-    document.querySelectorAll("#tree [data-k]").forEach((el) => {
-      const c = byCat.get(el.dataset.k) || 0;
-      el.querySelector(".count").textContent = c;
-      const pressed = state.cat && el.dataset.k === catKey(state.cat);
-      if (el.tagName === "BUTTON") el.setAttribute("aria-pressed", pressed ? "true" : "false");
-    });
-  }
-  const catKey = (c) => [c.src, ...c.path].join("|");
-
-  // 出典ごとの目次ツリー（第1階層と第2階層まで）
-  function buildTree() {
-    const tree = new Map();
-    for (const it of ITEMS) {
-      const s = srcKey(it);
-      if (!tree.has(s)) tree.set(s, new Map());
-      const l1 = it.category[0] || "";
-      const m = tree.get(s);
-      if (!m.has(l1)) m.set(l1, new Set());
-      if (it.category[1]) m.get(l1).add(it.category[1]);
-    }
-    let html = "";
-    for (const [src, l1s] of tree) {
-      let inner = "";
-      for (const [l1, l2s] of l1s) {
-        if (!l1) continue;
-        // 第1階層が1つしかない出典（タックスアンサー等）は第2階層を直接並べる
-        if (l1s.size === 1 && l2s.size) {
-          for (const l2 of l2s) inner += catBtn(src, [l1, l2], l2, 18);
-        } else {
-          inner += catBtn(src, [l1], l1, 18);
-          if (l2s.size && l2s.size <= 40) for (const l2 of l2s) inner += catBtn(src, [l1, l2], l2, 32);
-        }
-      }
-      html += `<details><summary data-k="${esc(src)}"><span>${esc(shortSource(src))}</span><span class="count"></span></summary><div class="cat-wrap">${inner}</div></details>`;
-    }
-    $("tree").innerHTML = html;
-  }
-  function catBtn(src, path, label, pad) {
-    const k = [src, ...path].join("|");
-    return `<button type="button" class="cat" data-k="${esc(k)}" data-src="${esc(src)}" data-path="${esc(JSON.stringify(path))}" style="padding-left:${pad}px"><span>${esc(label)}</span><span class="count"></span></button>`;
-  }
-
-  // ------------------------------------------------ 詳細
-  function openItem(it, push = true) {
-    state.current = it;
-    const pane = $("detail-pane");
-    pane.classList.add("open");
-    pane.dataset.type = it.type;
-    const facts = [];
-    if (it.asof) facts.push(`<span>${esc(it.asof)}</span>`);
-    facts.push(`<span>${esc(it.source)}</span>`);
-    const alt = (it.altCategories || []).map((c) => c.join(" ／ "));
-    pane.innerHTML = `<div class="detail" data-type="${esc(it.type)}">
-      <div class="detail-top"><div class="crumbs">${[it.source, ...it.category].map((c) => `<span>${esc(c)}</span>`).join("")}</div>
-      <button class="btn only-narrow" type="button" id="close-detail">一覧へ戻る</button></div>
-      <span class="badge">${esc(it.type)}</span>
-      <h2 class="dtitle">${it.number ? `<span class="dnum">${esc(it.number)}</span>` : ""}${esc(it.title)}</h2>
-      <div class="facts">${facts.join("")}${alt.length ? `<span>他の掲載区分：${alt.map(esc).join("、")}</span>` : ""}</div>
-      <div class="topic-tags">${it.topics.map((t) => `<button type="button" data-topic-go="${esc(t)}">${esc(t)}</button>`).join("")}</div>
-      <div class="body" id="dbody">${it.html}</div>
-      <a class="source-link" href="${esc(it.url)}" target="_blank" rel="noopener">国税庁ホームページで原文を見る ↗</a>
-      ${relatedHTML(it)}
-    </div>`;
-    decorateBody($("dbody"), it);
-    pane.scrollTop = 0;
-    document.querySelectorAll(".result[aria-current]").forEach((el) => el.removeAttribute("aria-current"));
-    const row = document.querySelector(`.result[data-h="${CSS.escape(it.hash)}"]`);
-    if (row) row.setAttribute("aria-current", "true");
-    if (push) { try { history.replaceState(null, "", "#" + it.hash); } catch {} }
-  }
-
-  function showWelcome(counts) {
-    const pane = $("detail-pane");
-    pane.classList.remove("open");
-    const ex = ["小規模宅地 老人ホーム", "地積規模の大きな宅地", "死亡保険金 非課税", "貸家建付地", "類似業種比準", "配偶者居住権", "養子 法定相続人の数", "生命保険契約に関する権利"];
-    pane.innerHTML = `<div class="welcome">
-      <h2>相続税区分辞書</h2>
-      <p>国税庁ホームページに掲載されている相続税関係の法令解釈通達、タックスアンサー、質疑応答事例を、ひとつの索引から引けるようにまとめた辞書です。左の「相続税区分」を選ぶと、同じ論点の通達と解説と事例を横断して読めます。</p>
-      <div class="stat-row">
-        ${TYPES.map((t) => `<div class="stat" data-type="${t}"><b>${counts[t].toLocaleString()}</b><span>${t}</span></div>`).join("")}
-      </div>
-      <p><strong>検索の例</strong></p>
-      <div class="examples">${ex.map((e) => `<button type="button" class="btn" data-example="${esc(e)}">${esc(e)}</button>`).join("")}</div>
-      <p class="note">空白で区切った語句はすべてを含む項目に絞り込みます。通達番号（例：3-1、69の4-1）でも引けます。本文中の「相基通」「評基通」「措通」の番号や、収録済みのページへのリンクは辞書内で開きます。収録内容は取得日時点のもので、適用にあたっては原文と最新の法令をご確認ください。</p>
-    </div>`;
-  }
-
-  function relatedHTML(it) {
-    const grams = (s) => { const g = new Set(); const n = norm(s).replace(/[\s()（）「」『』、。・]/g, ""); for (let i = 0; i < n.length - 1; i++) g.add(n.slice(i, i + 2)); return g; };
-    const g0 = grams(it.title + " " + it.category.slice(-1)[0]);
-    const cand = [];
-    for (const o of ITEMS) {
-      if (o === it || !o.topics.some((t) => it.topics.includes(t))) continue;
-      const g1 = grams(o.title);
-      let c = 0; g1.forEach((x) => { if (g0.has(x)) c++; });
-      if (c < 2) continue;
-      cand.push([o, c / Math.sqrt(g1.size + 1) + (o.type !== it.type ? 0.6 : 0)]);
-    }
-    cand.sort((a, b) => b[1] - a[1]);
-    const picks = [];
-    for (const t of TYPES) picks.push(...cand.filter(([o]) => o.type === t).slice(0, 4));
-    if (!picks.length) return "";
-    picks.sort((a, b) => TYPES.indexOf(a[0].type) - TYPES.indexOf(b[0].type) || b[1] - a[1]);
-    return `<section class="related"><h3>関連する項目</h3><ul>${picks.map(([o]) => `<li><button type="button" data-h="${esc(o.hash)}" data-type="${esc(o.type)}"><span class="badge">${esc(shortType(o.type))}</span><span>${o.number ? `<span class="num">${esc(o.number)}</span>　` : ""}${esc(o.title)}</span></button></li>`).join("")}</ul></section>`;
-  }
-
-  const REF_SOURCES = [
-    [/^(相基通|相続税法基本通達)$/, "相続税法基本通達"],
-    [/^(評基通|財産評価基本通達)$/, "財産評価基本通達"],
-    [/^(措通|措置法通達|租税特別措置法\(相続税法の特例関係\)の取扱いについて)$/, "租税特別措置法（相続税法の特例関係）通達"],
-  ];
-  const REF_RE = /(相基通|相続税法基本通達|評基通|財産評価基本通達|措通|措置法通達)\s*([0-9０-９][0-9０-９のー－\-・共]*[0-9０-９])/g;
-
-  function decorateBody(root, it) {
-    // 表は横スクロール枠で包む
-    root.querySelectorAll("table").forEach((t) => { const w = document.createElement("div"); w.className = "tablewrap"; t.replaceWith(w); w.appendChild(t); });
-    // 収録済みページへのリンクは辞書内で開く
-    root.querySelectorAll("a[href]").forEach((a) => {
-      const target = BYURL.get(a.href) || BYURL.get(a.href.split("#")[0]);
-      if (target && target !== it) { a.classList.add("xref"); a.dataset.h = target.hash; a.removeAttribute("target"); a.title = "辞書内で開く"; }
-    });
-    // 通達番号の参照を辞書内リンクにする
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-    while (walker.nextNode()) if (/相基通|相続税法基本通達|評基通|財産評価基本通達|措通|措置法通達/.test(walker.currentNode.nodeValue) && !walker.currentNode.parentElement.closest("a")) nodes.push(walker.currentNode);
-    for (const node of nodes) {
-      const s = node.nodeValue;
-      let last = 0, m, frag = document.createDocumentFragment(), changed = false;
-      REF_RE.lastIndex = 0;
-      while ((m = REF_RE.exec(s))) {
-        const src = REF_SOURCES.find(([re]) => re.test(m[1]))[1];
-        let num = normNum(m[2]);
-        let target = BYNUM.get(src + "|" + num);
-        if (!target && src.startsWith("租税") && !/^\d+の/.test(num)) target = null;
-        if (!target) continue;
-        frag.append(s.slice(last, m.index));
-        const a = document.createElement("a");
-        a.href = target.url; a.className = "xref"; a.dataset.h = target.hash; a.title = target.title;
-        a.textContent = m[0];
-        frag.append(a);
-        last = m.index + m[0].length; changed = true;
-      }
-      if (!changed) continue;
-      frag.append(s.slice(last));
-      node.replaceWith(frag);
-    }
-  }
-
-  // ------------------------------------------------ 操作
-  function bind() {
-    let timer;
-    $("q").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(() => { state.q = $("q").value; state.shown = PAGE; render(); $("list-pane").scrollTop = 0; }, 160); });
-    $("search-form").addEventListener("submit", (e) => { e.preventDefault(); state.q = $("q").value; state.shown = PAGE; render(); });
-    $("sort").addEventListener("change", () => { state.sort = $("sort").value; store.set("sort", state.sort); render(); });
-    $("more").addEventListener("click", () => { state.shown += PAGE; render(); });
-    $("clear-topic").addEventListener("click", () => setTopic(null));
-    $("clear-cat").addEventListener("click", () => setCat(null));
-    $("open-filters").addEventListener("click", () => $("index-pane").classList.add("open"));
-    $("close-filters").addEventListener("click", () => $("index-pane").classList.remove("open"));
-    document.addEventListener("click", (e) => {
-      const el = e.target.closest("[data-h],[data-t],[data-topic],[data-topic-go],[data-clear],[data-example],#close-detail,.cat");
-      if (!el) return;
-      if (el.id === "close-detail") { $("detail-pane").classList.remove("open"); return; }
-      if (el.classList.contains("cat")) { const c = { src: el.dataset.src, path: JSON.parse(el.dataset.path) }; setCat(state.cat && catKey(state.cat) === catKey(c) ? null : c); return; }
-      if (el.dataset.h) { e.preventDefault(); const it = BYHASH.get(el.dataset.h); if (it) openItem(it); return; }
-      if (el.dataset.t) { const t = el.dataset.t; if (state.types.has(t) && state.types.size === 1) state.types = new Set(TYPES); else if (state.types.has(t)) state.types.delete(t); else state.types.add(t); state.shown = PAGE; render(); return; }
-      if (el.dataset.topic) { setTopic(state.topic === el.dataset.topic ? null : el.dataset.topic); return; }
-      if (el.dataset.topicGo) { setTopic(el.dataset.topicGo); $("detail-pane").classList.remove("open"); return; }
-      if (el.dataset.clear) { el.dataset.clear === "topic" ? setTopic(null) : setCat(null); return; }
-      if (el.dataset.example) { $("q").value = el.dataset.example; state.q = el.dataset.example; state.shown = PAGE; render(); }
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "/" && document.activeElement !== $("q")) { e.preventDefault(); $("q").focus(); }
-      if (e.key === "Escape") { $("detail-pane").classList.remove("open"); $("index-pane").classList.remove("open"); }
-    });
-    window.addEventListener("hashchange", () => { const it = BYHASH.get(decodeURIComponent(location.hash.slice(1))); if (it && it !== state.current) openItem(it, false); });
-  }
-  function setTopic(t) { state.topic = t; state.shown = PAGE; render(); $("list-pane").scrollTop = 0; }
-  function setCat(c) { state.cat = c; state.shown = PAGE; render(); $("list-pane").scrollTop = 0; }
-})();
-</script>
+  <script src="app.js"></script>
 </body>
 </html>

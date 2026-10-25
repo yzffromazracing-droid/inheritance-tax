@@ -20,16 +20,31 @@ from pathlib import Path
 from urllib.parse import urljoin, urldefrag
 
 import requests
-from bs4 import BeautifulSoup, NavigableString, Tag
+from bs4 import BeautifulSoup, Comment, NavigableString, Tag
+
+import bunrui
 
 BASE = "https://www.nta.go.jp"
 
 # 通達（目次ページ）
 TSUTATSU_SOURCES = [
-    ("相続税法基本通達", "/law/tsutatsu/kihon/sisan/sozoku2/01.htm"),
-    ("財産評価基本通達", "/law/tsutatsu/kihon/sisan/hyoka_new/01.htm"),
-    ("租税特別措置法（相続税法の特例関係）通達", "/law/tsutatsu/kobetsu/sozoku/sochiho/080708/01.htm"),
+    ("kihon", "相続税法基本通達", "/law/tsutatsu/kihon/sisan/sozoku2/01.htm"),
+    ("hyoka", "財産評価基本通達", "/law/tsutatsu/kihon/sisan/hyoka_new/01.htm"),
+    ("so", "租税特別措置法（相続税法の特例関係）通達", "/law/tsutatsu/kobetsu/sozoku/sochiho/080708/01.htm"),
 ]
+# 個別通達（目次ページ）
+KOBETSU_SOURCES = [
+    ("相続税関係", "/law/tsutatsu/kobetsu/sozoku/souzoku.htm"),
+    ("財産評価関係", "/law/tsutatsu/kobetsu/hyoka/zaisan.htm"),
+]
+KOBETSU_SKIP = ("/law/sozoku/kaisei/",)  # 申請・届出様式の制定（様式の一覧のみ）
+# 文書回答事例（項目別の目次ページ）
+BUNSHO_SOURCES = [
+    ("相続税", "/law/bunshokaito/sozoku/05_1.htm"),
+    ("贈与税", "/law/bunshokaito/zoyo/06_1.htm"),
+    ("財産の評価", "/law/bunshokaito/hyoka/07_1.htm"),
+]
+MAX_SUBPAGES = 20
 # タックスアンサー（コード一覧のセクションID）
 TAXANSWER_INDEX = "/taxes/shiraberu/taxanswer/code/index.htm"
 TAXANSWER_SECTIONS = ["code04", "code05", "code06"]  # 相続税・贈与税・財産の評価
@@ -38,53 +53,6 @@ SHITSUGI_SOURCES = [
     ("相続税・贈与税", "/law/shitsugi/sozoku/01.htm"),
     ("財産の評価", "/law/shitsugi/hyoka/01.htm"),
 ]
-
-# 相続税区分（通達・タックスアンサー・質疑応答事例を横断する分類）。
-# タイトルと区分名にキーワードが含まれる場合にその区分を付与する（複数可）。
-TOPICS = [
-    ("納税義務者・課税財産の範囲", ["納税義務", "住所", "国外", "財産の所在", "課税財産の範囲", "外国に居住", "個人とみなされる", "相続税がかかる場合"]),
-    ("相続人・法定相続分", ["相続人の範囲", "法定相続", "養子", "相続の放棄", "相続を放棄", "相続権", "代襲", "相続人の数"]),
-    ("相続財産の範囲", ["相続財産の範囲", "相続税がかかる財産", "還付金", "名義", "損害賠償"]),
-    ("みなし相続財産（保険金・退職金等）", ["保険金", "保険契約", "退職手当", "退職金", "弔慰金", "定期金", "年金", "みなし", "取得したものとみなす"]),
-    ("非課税財産・寄附", ["非課税", "かからない財産", "墓", "庭内神し", "寄附", "国等に対", "公益"]),
-    ("債務控除・葬式費用", ["債務", "葬式"]),
-    ("生前贈与加算", ["贈与財産の加算", "加算対象", "生前贈与", "相続開始前"]),
-    ("相続税額の計算・税額控除", ["相続税の総額", "相続税の計算", "相続税の税率", "基礎控除", "2割加算", "相続税額の加算",
-                       "配偶者の税額", "配偶者に対する相続税額の軽減", "未成年者", "障害者", "相次相続", "外国税額", "税額控除", "課税価格"]),
-    ("遺産分割", ["分割", "代償", "遺言", "遺留分"]),
-    ("小規模宅地等の特例", ["小規模宅地", "第69条の4", "69の4", "特定居住用", "特定事業用", "貸付事業用"]),
-    ("土地等の評価", ["土地", "宅地", "路線価", "倍率", "農地", "山林", "原野", "雑種地", "借地", "地積", "画地", "貸家建付",
-                "私道", "地上権", "永小作権", "区分地上権", "定期借地", "使用貸借", "無償使用", "牧場", "池沼", "鉱泉地", "セットバック"]),
-    ("家屋・その他財産の評価", ["家屋", "構築物", "動産", "書画", "預貯金", "預金", "公社債", "ゴルフ", "特許", "著作権", "営業権",
-                    "電話加入権", "立竹木", "果樹", "信託受益権", "定期金に関する権利の評価", "その他の財産", "棚卸", "たな卸", "船舶", "牛馬",
-                    "鉱業権", "租鉱権", "採石権", "漁業権", "商標権", "実用新案権", "外貨", "邦貨換算", "区分所有財産", "元物と果実"]),
-    ("株式・出資の評価", ["株式", "出資", "類似業種", "純資産価額", "配当還元", "同族株主", "会社規模", "株主区分", "評価会社"]),
-    ("配偶者居住権", ["配偶者居住権"]),
-    ("信託・一般社団法人等", ["信託", "一般社団", "人格のない社団", "持分の定めのない法人"]),
-    ("贈与税", ["贈与税", "贈与と税金", "住宅取得等資金", "教育資金", "結婚・子育て", "夫婦間", "贈与財産の範囲", "贈与により取得"]),
-    ("相続時精算課税", ["精算課税"]),
-    ("申告・更正・期限", ["申告", "更正", "修正", "期限", "開示", "調書"]),
-    ("延納・物納", ["延納", "物納", "利子税"]),
-    ("納税猶予（農地・事業承継等）", ["納税猶予", "事業承継", "第70条の4", "第70条の6", "第70条の7", "70の4", "70の6", "70の7",
-                         "農業相続人", "美術品", "医療法人", "特定貸付", "都市農地"]),
-]
-
-
-VALUATION_TOPICS = {"土地等の評価", "家屋・その他財産の評価", "株式・出資の評価"}
-
-
-def classify(item) -> list[str]:
-    hay = item["title"] + " " + " ".join(item["category"])
-    for cats in item.get("altCategories", []):
-        hay += " " + " ".join(cats)
-    # 評価関係の区分は、評価に関する資料（または評価を扱う項目）に限って付与する
-    is_valuation = "評価" in item["source"] or "評価" in hay
-    hit = [name for name, kws in TOPICS
-           if (is_valuation or name not in VALUATION_TOPICS) and any(k in hay for k in kws)]
-    if not hit and is_valuation:
-        hit = ["家屋・その他財産の評価"]
-    return hit or ["その他"]
-
 
 session = requests.Session()
 session.headers["User-Agent"] = "inheritance-tax-dictionary/1.0 (personal research)"
@@ -206,7 +174,7 @@ def text_of(nodes) -> str:
     for n in nodes:
         if isinstance(n, Tag):
             parts.append(n.get_text(" "))
-        elif isinstance(n, NavigableString):
+        elif isinstance(n, NavigableString) and not isinstance(n, Comment):
             parts.append(str(n))
     return clean(" ".join(parts))
 
@@ -267,10 +235,11 @@ def tsutatsu_heading(el: Tag):
         if re.match(r"^第[0-9０-９一二三四五六七八九十]+款", text):
             return (3, text)
         inner = strip_brackets(text)
+        # 〔保険金関係〕などの小見出しは条の下に置く（措置法通達の〔措置法第○条…関係〕は条の見出し）
+        if text.startswith("〔") and not re.match(r"^(旧)?措置法", inner):
+            return (5, inner)
         if inner.endswith("関係"):
             return (4, inner)
-        if text.startswith("〔"):
-            return (5, inner)
         if el.name in ("h2", "h3"):
             return (1, text)
         return (4, strip_brackets(text))
@@ -440,6 +409,45 @@ def shitsugi_detail(soup: BeautifulSoup, url: str):
     return {"pageTitle": title, "asof": asof, "html": simplify(nodes, url), "text": text}
 
 
+def multi_page(f, url: str):
+    """本文ページと、同じフォルダにある別紙・続きのページ（HTML）をまとめて取り出す。"""
+    soup = f.get(url)
+    if soup is None:
+        return None
+    base_dir = urldefrag(url)[0].rsplit("/", 1)[0] + "/"
+    pages = [(url, soup)]
+    seen = {urldefrag(url)[0]}
+    queue = [soup]
+    while queue and len(pages) < MAX_SUBPAGES:
+        area = body_area(queue.pop(0))
+        for a in area.find_all("a", href=True):
+            if a.find_parent("ol") or a.find_parent(class_="breadcrumb"):
+                continue
+            u = urldefrag(urljoin(url, a["href"]))[0]
+            if u in seen or not u.startswith(base_dir) or not u.endswith(".htm"):
+                continue
+            seen.add(u)
+            sp = f.get(u)
+            if sp is None:
+                continue
+            pages.append((u, sp))
+            queue.append(sp)
+            if len(pages) >= MAX_SUBPAGES:
+                break
+    html, text = [], []
+    for i, (u, sp) in enumerate(pages):
+        area = body_area(sp)
+        nodes = [n for n in content_nodes(area) if not (isinstance(n, NavigableString) and "InstanceEnd" in str(n))]
+        if i > 0:
+            h1 = area.find("h1")
+            if h1:
+                html.append(f"<h2>{escape(clean(h1.get_text()))}</h2>")
+                text.append(clean(h1.get_text()))
+        html.append(simplify(nodes, u))
+        text.append(text_of(nodes))
+    return {"html": "\n".join(html), "text": " ".join(text)}
+
+
 # ---------------------------------------------------------------- メイン
 
 def make_id(prefix, url):
@@ -461,7 +469,7 @@ def main():
     items = []
 
     # --- 通達
-    for name, idx in TSUTATSU_SOURCES:
+    for kind, name, idx in TSUTATSU_SOURCES:
         idx_url = BASE + idx
         print(f"[通達] {name}", file=sys.stderr)
         entries = parse_index(f.get(idx_url), idx_url, tsutatsu_heading)
@@ -485,6 +493,7 @@ def main():
                 d = tsutatsu_detail(soup, e["url"])
             items.append({
                 "id": make_id("tsutatsu", e["url"]),
+                "kind": kind,
                 "type": "通達",
                 "source": name,
                 "number": e["number"],
@@ -527,6 +536,7 @@ def main():
             d = taxanswer_detail(s, e["url"])
             items.append({
                 "id": make_id("taxanswer", e["url"]),
+                "kind": "ta",
                 "type": "タックスアンサー",
                 "source": f"タックスアンサー（{sec_name}）",
                 "number": f"No.{e['number']}" if e["number"] else "",
@@ -553,6 +563,7 @@ def main():
             d = shitsugi_detail(s, e["url"])
             items.append({
                 "id": make_id("shitsugi", e["url"]),
+                "kind": "qa",
                 "type": "質疑応答事例",
                 "source": f"質疑応答事例（{name}）",
                 "number": e["number"],
@@ -560,6 +571,80 @@ def main():
                 "category": e["category"],
                 "url": e["url"],
                 "asof": d["asof"],
+                "html": d["html"],
+                "text": d["text"],
+            })
+        print(f"  {len(entries)} 件", file=sys.stderr)
+
+    # --- 個別通達
+    for name, idx in KOBETSU_SOURCES:
+        idx_url = BASE + idx
+        print(f"[個別通達] {name}", file=sys.stderr)
+        entries = []
+        for tr in body_area(f.get(idx_url)).select("table tr"):
+            tds = tr.find_all("td")
+            a = tds[1].find("a", href=True) if len(tds) > 1 else None
+            if not a or any(k in a["href"] for k in KOBETSU_SKIP):
+                continue
+            dates = re.findall(r"（[^）]*?日[^）]*?）", clean(tds[0].get_text()))
+            entries.append({"title": clean(a.get_text()), "url": urljoin(idx_url, a["href"]),
+                            "date": dates[0].strip("（）") if dates else "",
+                            "revised": dates[1].strip("（）") if len(dates) > 1 else ""})
+        with ThreadPoolExecutor(args.workers) as ex:
+            details = list(ex.map(lambda e: multi_page(f, e["url"]), entries))
+        for e, d in zip(entries, details):
+            if d is None:
+                continue
+            items.append({
+                "id": make_id("kobetsu", e["url"]),
+                "kind": "kobetsu",
+                "type": "通達",
+                "source": "個別通達",
+                "number": "",
+                "title": e["title"],
+                "category": [name],
+                "url": e["url"],
+                "date": e["date"],
+                "asof": e["revised"],
+                "html": d["html"],
+                "text": d["text"],
+            })
+        print(f"  {len(entries)} 件", file=sys.stderr)
+
+    # --- 文書回答事例
+    for name, idx in BUNSHO_SOURCES:
+        idx_url = BASE + idx
+        print(f"[文書回答事例] {name}", file=sys.stderr)
+        entries = []
+        heading = ""
+        for el in body_area(f.get(idx_url)).find_all(["h2", "h3", "h4", "h5", "table"]):
+            if el.name != "table":
+                heading = strip_brackets(el.get_text())
+                continue
+            row = {clean(tr.find("th").get_text()): tr.find("td") for tr in el.find_all("tr") if tr.find("th") and tr.find("td")}
+            a = row.get("照会事項") and row["照会事項"].find("a", href=True)
+            if not a:
+                continue
+            entries.append({"title": clean(a.get_text()), "url": urljoin(idx_url, a["href"]),
+                            "date": clean(row["回答年月日"].get_text()) if "回答年月日" in row else "",
+                            "dept": clean(row["回答部署"].get_text()) if "回答部署" in row else "",
+                            "category": [name] + ([heading] if heading else [])})
+        with ThreadPoolExecutor(args.workers) as ex:
+            details = list(ex.map(lambda e: multi_page(f, e["url"]), entries))
+        for e, d in zip(entries, details):
+            if d is None:
+                continue
+            items.append({
+                "id": make_id("bunsho", e["url"]),
+                "kind": "bk",
+                "type": "文書回答事例",
+                "source": f"文書回答事例（{name}）",
+                "number": "",
+                "title": e["title"],
+                "category": e["category"],
+                "url": e["url"],
+                "date": e["date"],
+                "dept": e["dept"],
                 "html": d["html"],
                 "text": d["text"],
             })
@@ -576,13 +661,14 @@ def main():
         merged[it["id"]] = it
     items = list(merged.values())
     for it in items:
-        it["topics"] = classify(it)
+        it["tags"] = bunrui.classify(it)
+        del it["text"]  # 検索用の本文は画面側で html から作る
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     data = {"generated": date.today().isoformat(), "count": len(items),
             "sourceNote": "出典：国税庁ホームページ（https://www.nta.go.jp/）",
-            "topics": [t for t, _ in TOPICS] + ["その他"], "items": items}
+            "bunrui": bunrui.export(), "items": items}
     out.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"wrote {out} ({len(items)} items, {out.stat().st_size / 1e6:.1f} MB)", file=sys.stderr)
 
