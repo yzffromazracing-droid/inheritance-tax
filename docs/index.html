@@ -12,7 +12,8 @@
   <header class="site-header">
     <h1>相続税区分辞書</h1>
     <nav class="tabs" role="tablist">
-      <button class="tab is-active" role="tab" data-tab="sozoku" aria-selected="true">相続税</button>
+      <button class="tab is-active" role="tab" data-tab="dict" aria-selected="true">辞書</button>
+      <button class="tab" role="tab" data-tab="sozoku" aria-selected="false">相続税</button>
       <button class="tab" role="tab" data-tab="zoyo" aria-selected="false">贈与税</button>
       <button class="tab" role="tab" data-tab="zaisan" aria-selected="false">財産評価</button>
       <button class="tab" role="tab" data-tab="nta" aria-selected="false">国税庁の記事</button>
@@ -21,8 +22,22 @@
   </header>
 
   <main>
+    <!-- 辞書（すべての出典の横断検索） -->
+    <section id="tab-dict" class="panel" role="tabpanel">
+      <div class="search-box">
+        <input id="dict-q" type="search" placeholder="例：小規模宅地、かしやたてつけち、3-1、名義預金" autocomplete="off" aria-label="すべての項目をキーワードで検索">
+      </div>
+      <div class="filters">
+        <div id="dict-type-filters" class="chips" aria-label="資料の種類で絞り込み"></div>
+        <select id="dict-category-filter" class="select" aria-label="出典と分類で絞り込み"></select>
+      </div>
+      <p id="dict-count" class="count"></p>
+      <ul id="dict-results" class="results"></ul>
+      <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>収録しているすべての通達・記事をまとめて検索できます。スペース区切りで複数語を指定でき（すべてを含むものを表示）、「-語」で除外できます。検索語は本文にも一致します。ひらがな・カタカナの読み（例：れきねんかぜい）でも検索できます。テーマごとに整理した一覧は「相続税」「贈与税」「財産評価」タブで見られます。</p>
+    </section>
+
     <!-- 相続税（区分ごとの横断検索） -->
-    <section id="tab-sozoku" class="panel" role="tabpanel">
+    <section id="tab-sozoku" class="panel" role="tabpanel" hidden>
       <div class="search-box">
         <input id="sozoku-q" type="search" placeholder="例：小規模宅地 老人ホーム、かしやたてつけち、3-1、名義" autocomplete="off" aria-label="相続税の項目をキーワードで検索">
       </div>

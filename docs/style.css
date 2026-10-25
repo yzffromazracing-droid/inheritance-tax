@@ -416,7 +416,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* ---- 相続税区分辞書の追加分 ---- */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-#sozoku-type-filters, #sozoku-topic-filters, #zoyo-type-filters, #zoyo-topic-filters, #zaisan-type-filters, #zaisan-topic-filters {
+#dict-type-filters, #sozoku-type-filters, #sozoku-topic-filters, #zoyo-type-filters, #zoyo-topic-filters, #zaisan-type-filters, #zaisan-topic-filters {
   flex: 1 1 100%;
   min-width: 0;
   flex-wrap: nowrap;
@@ -465,3 +465,18 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .article-body .img { color: var(--muted); font-size: 0.85rem; }
 .article-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
 .article-tags .chip { font-size: 0.78rem; padding: 2px 10px; }
+
+/* 辞書タブ：資料の種類のボタン（押したときは出典の色） */
+.chip-kihon.is-active { background: var(--k10); border-color: var(--k10); }
+.chip-hyoka.is-active { background: var(--tea); border-color: var(--tea); }
+.chip-so.is-active { background: var(--men); border-color: var(--men); }
+.chip-kobetsu.is-active { background: var(--amb); border-color: var(--amb); }
+.chip-ta.is-active { background: var(--hi); border-color: var(--hi); }
+.chip-qa.is-active { background: var(--k8); border-color: var(--k8); }
+.chip-bk.is-active { background: var(--fu); border-color: var(--fu); }
+
+/* タブが 6 つになったため、狭い画面では余白を詰めて 1 行に収める */
+@media (max-width: 480px) {
+  .tabs { gap: 0; }
+  .tab { padding: 10px 5px; font-size: 0.8rem; }
+}

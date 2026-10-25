@@ -13,7 +13,7 @@
     bk: { label: "文書回答事例", short: "文書回答事例" },
   };
   var TSUTATSU = { kihon: true, hyoka: true, so: true, kobetsu: true };
-  var TABS = ["sozoku", "zoyo", "zaisan", "nta", "tsu"];
+  var TABS = ["dict", "sozoku", "zoyo", "zaisan", "nta", "tsu"];
   var DICT_TABS = ["sozoku", "zoyo", "zaisan"];
   // サブタブのあるタブ（先頭が既定）
   var SUBS = { nta: ["ta", "qa", "bk"], tsu: ["kihon", "hyoka", "so", "kobetsu"] };
@@ -426,6 +426,7 @@
    * 検索・絞り込み・一覧の 1 セットを作る。
    * prefix : 要素IDの接頭辞（例：kihon → #kihon-q, #kihon-results …）
    * opts.tab      : 相続税・贈与税・財産評価タブ。区分（data.bunrui）のボタンとテーマの一覧を出す
+   * opts.types    : 辞書タブ。「すべて」の右に資料の種類のボタンを出す
    * opts.only     : この種別の記事だけを扱う
    * opts.showType : 各項目に種別バッジを出す
    * opts.allLabel : 分類の選択肢の「すべて」の表記
@@ -495,14 +496,14 @@
       renderList(true);
     }
 
-    if (tab && chips) {
-      [""].concat(CLASS_ORDER[tab]).forEach(function (code) {
+    if ((tab || opts.types) && chips) {
+      [""].concat(tab ? CLASS_ORDER[tab] : opts.types).forEach(function (code) {
         var btn = el("button", {
-          class: "chip",
+          class: "chip" + (!tab && code ? " chip-" + code : ""),
           type: "button",
           "data-type": code,
           "aria-pressed": "false",
-          text: code ? BUNRUI[tab][code].label : "すべて",
+          text: !code ? "すべて" : tab ? BUNRUI[tab][code].label : TYPES[code].label,
         });
         btn.addEventListener("click", function () {
           if (st.focus) clearFocus();
@@ -559,11 +560,12 @@
       var found = false;
       select.appendChild(el("option", { value: "", text: opts.allLabel || "すべての分類" }));
       list.forEach(function (a) {
+        if (!tab && st.type && a.type !== st.type) return;
         var key = a.type + "|" + a.category;
         if (seen[key]) return;
         seen[key] = true;
         if (key === st.category) found = true;
-        var label = opts.showType ? TYPES[a.type].short + "：" + a.category : a.category;
+        var label = opts.showType && !(!tab && st.type) ? TYPES[a.type].short + "：" + a.category : a.category;
         select.appendChild(el("option", { value: key, text: label }));
       });
       if (!found) st.category = "";
@@ -579,7 +581,7 @@
       var sep = st.category.indexOf("|");
       var isTopic = st.category.indexOf("topic|") === 0;
       var results = searchArticles(list, st.q, {
-        type: cls ? "" : sep >= 0 && !isTopic ? st.category.slice(0, sep) : "",
+        type: cls ? "" : sep >= 0 && !isTopic ? st.category.slice(0, sep) : !tab ? st.type : "",
         category: !isTopic && sep >= 0 ? st.category.slice(sep + 1) : "",
         tab: tab,
         cls: cls,
@@ -619,7 +621,7 @@
         return a.id === st.focus;
       });
       var fromLink = history.state && history.state.fromLink;
-      var back = el("button", { class: "btn btn-ghost", type: "button", text: fromLink ? "← 前の画面に戻る" : "← 相続税タブへ" });
+      var back = el("button", { class: "btn btn-ghost", type: "button", text: fromLink ? "← 前の画面に戻る" : "← 辞書へ" });
       back.addEventListener("click", function () {
         if (fromLink) history.back();
         else location.hash = "";
@@ -716,7 +718,7 @@
 
   /* ---------- タブ ---------- */
 
-  var view = { tab: "sozoku", sub: { nta: "ta", tsu: "kihon" }, id: "" };
+  var view = { tab: "dict", sub: { nta: "ta", tsu: "kihon" }, id: "" };
 
   function showView() {
     Array.prototype.forEach.call(document.querySelectorAll(".tab"), function (b) {
@@ -741,7 +743,7 @@
   // タブは URL（#tab=tsu&sub=so、#tab=nta&sub=qa）でも開ける
   function readHash() {
     var p = new URLSearchParams(location.hash.slice(1));
-    view.tab = TABS.indexOf(p.get("tab")) !== -1 ? p.get("tab") : "sozoku";
+    view.tab = TABS.indexOf(p.get("tab")) !== -1 ? p.get("tab") : "dict";
     Object.keys(SUBS).forEach(function (t) {
       view.sub[t] = view.tab === t && SUBS[t].indexOf(p.get("sub")) !== -1 ? p.get("sub") : SUBS[t][0];
     });
@@ -780,7 +782,7 @@
   function openTopic(tab, cls, topic) {
     view.tab = tab;
     view.id = "";
-    history.pushState({ fromLink: true }, "", tab === "sozoku" ? location.pathname + location.search : "#tab=" + tab);
+    history.pushState({ fromLink: true }, "", "#tab=" + tab);
     showView();
     applyFocus();
     INSTANCES[tab].topic(cls, topic);
@@ -789,7 +791,7 @@
 
   function writeHash() {
     var p = new URLSearchParams();
-    if (view.tab !== "sozoku") p.set("tab", view.tab);
+    if (view.tab !== "dict") p.set("tab", view.tab);
     if (SUBS[view.tab] && view.sub[view.tab] !== SUBS[view.tab][0]) p.set("sub", view.sub[view.tab]);
     if (view.id) p.set("id", view.id);
     var h = p.toString();
@@ -882,6 +884,7 @@
     });
     $("item-total").textContent = "収録 " + ARTICLES.length.toLocaleString() + " 件（取得日：" + fetched + "）";
 
+    setupDocTab("dict", { types: Object.keys(TYPES), showType: true });
     setupDocTab("sozoku", { tab: "sozoku", showType: true });
     setupDocTab("zoyo", { tab: "zoyo", showType: true });
     setupDocTab("zaisan", { tab: "zaisan", showType: true });
@@ -921,7 +924,7 @@
     })
     .catch(function (e) {
       console.error(e);
-      $("sozoku-count").textContent =
+      $("dict-count").textContent =
         "data/dictionary.json を読み込めませんでした。scraper/build_dictionary.py でデータを生成し、HTTP サーバー経由で開いてください。";
     });
 })();
