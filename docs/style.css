@@ -489,3 +489,15 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .rate-note { margin: 6px 0 0; color: var(--muted); font-size: 0.82rem; }
 .results > li { min-width: 0; }
 .rate-caption { margin: 10px 0 4px; font-size: 0.88rem; }
+
+/* 辞書タブ：月次更新の履歴 */
+.updates { margin-top: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+.updates-head { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; padding: 10px 14px; cursor: pointer; }
+.updates-title { font-weight: 600; font-size: 0.92rem; }
+.updates-count { color: var(--muted); font-size: 0.82rem; }
+.updates-entry { padding: 0 14px 12px; }
+.updates-date { margin: 8px 0 4px; font-size: 0.85rem; }
+.updates .ref-link .badge { min-width: 0; font-size: 0.72rem; }
+.updates a.ref-link { text-decoration: none; }
+.updates .ref-link { box-sizing: border-box; min-width: 0; }
+.updates .ref-title { min-width: 0; }

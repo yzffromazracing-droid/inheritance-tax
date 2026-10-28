@@ -23,6 +23,7 @@ import requests
 from bs4 import BeautifulSoup, Comment, NavigableString, Tag
 
 import bunrui
+import changes
 
 BASE = "https://www.nta.go.jp"
 
@@ -115,7 +116,7 @@ def body_area(soup: BeautifulSoup) -> Tag:
 ALLOWED = {"p", "br", "strong", "b", "table", "thead", "tbody", "tr", "th", "td",
            "ul", "ol", "li", "h2", "h3", "h4", "h5", "a", "sup", "sub", "span", "div",
            "dl", "dt", "dd", "caption", "img"}
-KEEP_ATTRS = {"colspan", "rowspan"}
+KEEP_ATTRS = ("colspan", "rowspan")  # 出力が実行ごとに変わらないよう順序を固定
 
 
 def simplify(nodes, page_url: str) -> str:
@@ -463,6 +464,12 @@ def main():
     ap.add_argument("--out", default="docs/data/dictionary.json")
     ap.add_argument("--delay", type=float, default=0.3)
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--only-if-changed", action="store_true",
+                    help="前回のデータと内容が同じなら書き込まない（取得日だけの更新をしない）")
+    ap.add_argument("--report", help="変更の要約（Markdown）の出力先。変更がなければ作らない")
+    ap.add_argument("--history", default="docs/data/updates.json", help="更新記録の出力先（--only-if-changed のとき）")
+    ap.add_argument("--max-drop", type=float, default=0.03,
+                    help="前回より項目数がこの割合を超えて減ったら、取得の失敗とみなして中止する")
     args = ap.parse_args()
     f = Fetcher(Path(args.cache), args.delay)
 
@@ -666,9 +673,29 @@ def main():
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    data = {"generated": date.today().isoformat(), "count": len(items),
+    today = date.today().isoformat()
+    data = {"generated": today, "count": len(items),
             "sourceNote": "出典：国税庁ホームページ（https://www.nta.go.jp/）",
             "bunrui": bunrui.export(), "items": items}
+
+    if args.only_if_changed and out.exists():
+        prev = json.loads(out.read_text(encoding="utf-8"))
+        # 一部のページが取れずに項目が大きく減った場合は、データを壊さないよう中止する
+        if len(items) < len(prev["items"]) * (1 - args.max_drop):
+            sys.exit(f"項目数が {len(prev['items'])} → {len(items)} に減りました。取得に失敗した可能性があるため更新を中止します。")
+        diff = changes.compare(prev["items"], items)
+        bunrui_changed = prev.get("bunrui") != data["bunrui"]
+        if not changes.has_changes(diff) and not bunrui_changed:
+            print("変更なし（データは書き換えません）", file=sys.stderr)
+            return
+        print(f"変更あり：追加{len(diff['added'])}件・削除{len(diff['removed'])}件・更新{len(diff['changed'])}件", file=sys.stderr)
+        hist_path = Path(args.history)
+        history = json.loads(hist_path.read_text(encoding="utf-8")) if hist_path.exists() else []
+        history.insert(0, changes.history_entry(today, diff, bunrui_changed))
+        hist_path.write_text(json.dumps(history, ensure_ascii=False, indent=1), encoding="utf-8")
+        if args.report:
+            Path(args.report).write_text(changes.report(today, diff, len(items), bunrui_changed), encoding="utf-8")
+
     out.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"wrote {out} ({len(items)} items, {out.stat().st_size / 1e6:.1f} MB)", file=sys.stderr)
 

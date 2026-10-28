@@ -919,6 +919,49 @@
     setupDocTab("qa", { only: "qa" });
     setupDocTab("bk", { only: "bk" });
     applyFocus();
+    getJSON("data/updates.json").then(renderUpdates, function () {
+      // 更新記録がまだない（初回の取得から変更がない）ときは何も出さない
+    });
+  }
+
+  // 辞書タブの「更新履歴」：月次更新で追加・削除・更新された項目（直近の記録から順に）
+  function renderUpdates(history) {
+    var box = $("dict-updates");
+    if (!history || !history.length) return;
+    var last = history[0];
+    var count = function (h) {
+      return "追加 " + h.added.length + " 件・更新 " + h.changed.length + " 件・削除 " + h.removed.length + " 件";
+    };
+    box.appendChild(el("summary", { class: "updates-head" }, [
+      el("span", { class: "updates-title", text: "最近の更新（" + last.date + "）" }),
+      el("span", { class: "updates-count", text: count(last) }),
+    ]));
+    history.slice(0, 6).forEach(function (h) {
+      var sec = el("div", { class: "updates-entry" }, [el("h3", { class: "updates-date", text: h.date + "　" + count(h) })]);
+      [["added", "追加"], ["changed", "更新"], ["removed", "削除"]].forEach(function (kv) {
+        if (!h[kv[0]].length) return;
+        var ul = el("ul", { class: "ref-list" });
+        h[kv[0]].forEach(function (b) {
+          var a = ARTICLES_BY_ID[b.id];
+          var label = el("span", { class: "ref-title", text: b.title });
+          var head = el("span", { class: "badge badge-" + b.kind, text: kv[1] + "：" + (TYPES[b.kind] ? TYPES[b.kind].short : b.kind) });
+          if (a) {
+            var btn = el("button", { class: "ref-link", type: "button" }, [head, label]);
+            btn.addEventListener("click", function () {
+              openArticle(a);
+            });
+            ul.appendChild(el("li", {}, [btn]));
+          } else {
+            // 削除された項目は辞書にないので、国税庁の元のページへのリンクにする
+            ul.appendChild(el("li", {}, [el("a", { class: "ref-link", href: b.url, target: "_blank", rel: "noopener" }, [head, label])]));
+          }
+        });
+        sec.appendChild(ul);
+      });
+      if (h.bunruiChanged) sec.appendChild(el("p", { class: "class-note", text: "区分・テーマの整理表も更新しました。" }));
+      box.appendChild(sec);
+    });
+    box.hidden = false;
   }
 
   setupTabs();
