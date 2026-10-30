@@ -13,6 +13,7 @@
     <h1>相続税区分辞書</h1>
     <nav class="tabs" role="tablist">
       <button class="tab is-active" role="tab" data-tab="dict" aria-selected="true">辞書</button>
+      <button class="tab" role="tab" data-tab="shoukei" aria-selected="false">事業承継</button>
       <button class="tab" role="tab" data-tab="sozoku" aria-selected="false">相続税</button>
       <button class="tab" role="tab" data-tab="zoyo" aria-selected="false">贈与税</button>
       <button class="tab" role="tab" data-tab="zaisan" aria-selected="false">財産評価</button>
@@ -35,6 +36,21 @@
       <p id="dict-count" class="count"></p>
       <ul id="dict-results" class="results"></ul>
       <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>収録しているすべての通達・記事をまとめて検索できます。スペース区切りで複数語を指定でき（すべてを含むものを表示）、「-語」で除外できます。検索語は本文にも一致します。ひらがな・カタカナの読み（例：れきねんかぜい）でも検索できます。テーマごとに整理した一覧は「相続税」「贈与税」「財産評価」タブで見られます。</p>
+    </section>
+
+    <!-- 事業承継（中小企業庁の情報と国税庁の事業承継税制） -->
+    <section id="tab-shoukei" class="panel" role="tabpanel" hidden>
+      <div class="search-box">
+        <input id="shoukei-q" type="search" placeholder="例：M&A、後継者、遺留分、特例承継計画、70の7の5" autocomplete="off" aria-label="事業承継の情報をキーワードで検索">
+      </div>
+      <div class="filters">
+        <div id="shoukei-type-filters" class="chips" aria-label="区分で絞り込み"></div>
+        <div id="shoukei-topic-filters" class="chips" aria-label="テーマで絞り込み" hidden></div>
+        <select id="shoukei-category-filter" class="select" aria-label="出典と分類で絞り込み"></select>
+      </div>
+      <p id="shoukei-count" class="count"></p>
+      <ul id="shoukei-results" class="results"></ul>
+      <p class="source">出典：<a href="https://www.chusho.meti.go.jp/zaimu/shoukei/index.html" target="_blank" rel="noopener">中小企業庁ホームページ「事業承継」</a>（「事業承継を知る」「事業承継を実施する」「事業承継の支援策」、2026年10月30日時点）、国税庁ホームページ（措置法通達・タックスアンサー）<br>区分を選ぶと、中小企業庁の情報をテーマごとに整理した説明・表と関連ページへのリンク、関係する国税庁の通達・記事を表示します。「すべて」では事業承継税制に関する国税庁の通達・記事を検索できます。中小企業庁の情報は自動更新の対象外のため、最新の内容は中小企業庁のページでご確認ください。</p>
     </section>
 
     <!-- 相続税（区分ごとの横断検索） -->
