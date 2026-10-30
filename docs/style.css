@@ -416,7 +416,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* ---- 相続税区分辞書の追加分 ---- */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-#dict-type-filters, #sozoku-type-filters, #sozoku-topic-filters, #zoyo-type-filters, #zoyo-topic-filters, #zaisan-type-filters, #zaisan-topic-filters {
+#dict-type-filters, #shoukei-type-filters, #shoukei-topic-filters, #sozoku-type-filters, #sozoku-topic-filters, #zoyo-type-filters, #zoyo-topic-filters, #zaisan-type-filters, #zaisan-topic-filters {
   flex: 1 1 100%;
   min-width: 0;
   flex-wrap: nowrap;
@@ -430,19 +430,21 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 }
 #sozoku-type-filters::-webkit-scrollbar, #sozoku-topic-filters::-webkit-scrollbar,
 #zoyo-type-filters::-webkit-scrollbar, #zoyo-topic-filters::-webkit-scrollbar,
-#zaisan-type-filters::-webkit-scrollbar, #zaisan-topic-filters::-webkit-scrollbar { display: none; }
-#sozoku-type-filters .chip, #sozoku-topic-filters .chip, #zoyo-type-filters .chip, #zoyo-topic-filters .chip, #zaisan-type-filters .chip, #zaisan-topic-filters .chip { flex: 0 0 auto; white-space: nowrap; scroll-snap-align: start; }
+#zaisan-type-filters::-webkit-scrollbar, #zaisan-topic-filters::-webkit-scrollbar,
+#shoukei-type-filters::-webkit-scrollbar, #shoukei-topic-filters::-webkit-scrollbar { display: none; }
+#sozoku-type-filters .chip, #sozoku-topic-filters .chip, #zoyo-type-filters .chip, #zoyo-topic-filters .chip, #zaisan-type-filters .chip, #zaisan-topic-filters .chip, #shoukei-type-filters .chip, #shoukei-topic-filters .chip { flex: 0 0 auto; white-space: nowrap; scroll-snap-align: start; }
 #sozoku-type-filters .chip:last-child, #sozoku-topic-filters .chip:last-child,
 #zoyo-type-filters .chip:last-child, #zoyo-topic-filters .chip:last-child,
-#zaisan-type-filters .chip:last-child, #zaisan-topic-filters .chip:last-child { margin-right: 24px; }
-#sozoku-topic-filters, #zoyo-topic-filters, #zaisan-topic-filters {
+#zaisan-type-filters .chip:last-child, #zaisan-topic-filters .chip:last-child,
+#shoukei-type-filters .chip:last-child, #shoukei-topic-filters .chip:last-child { margin-right: 24px; }
+#sozoku-topic-filters, #zoyo-topic-filters, #zaisan-topic-filters, #shoukei-topic-filters {
   margin-top: -2px;
   margin-left: 13px;
   padding: 2px 0 2px 10px;
   border-left: 1px dashed var(--border);
 }
-#sozoku-topic-filters[hidden], #zoyo-topic-filters[hidden], #zaisan-topic-filters[hidden] { display: none; }
-#sozoku-topic-filters .chip, #zoyo-topic-filters .chip, #zaisan-topic-filters .chip { font-size: 0.8rem; padding: 2px 10px; max-width: 85%; overflow: hidden; text-overflow: ellipsis; }
+#sozoku-topic-filters[hidden], #zoyo-topic-filters[hidden], #zaisan-topic-filters[hidden], #shoukei-topic-filters[hidden] { display: none; }
+#sozoku-topic-filters .chip, #zoyo-topic-filters .chip, #zaisan-topic-filters .chip, #shoukei-topic-filters .chip { font-size: 0.8rem; padding: 2px 10px; max-width: 85%; overflow: hidden; text-overflow: ellipsis; }
 .chip-group-sep { flex: 0 0 auto; align-self: center; width: 1px; height: 18px; background: var(--border); margin: 0 2px; }
 
 /* 本文（国税庁ページの見出し・段落・表をそのまま表示） */
@@ -501,3 +503,16 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .updates a.ref-link { text-decoration: none; }
 .updates .ref-link { box-sizing: border-box; min-width: 0; }
 .updates .ref-title { min-width: 0; }
+
+/* 事業承継タブ：中小企業庁などの関連ページ */
+.badge-ext { color: var(--accent); background: var(--bg); }
+.ext-list .ext-link { text-decoration: none; align-items: flex-start; }
+.ext-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.ext-note { color: var(--muted); font-size: 0.8rem; }
+.ext-for { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; flex-shrink: 0; max-width: 40%; }
+.for-tag { padding: 0 6px; border: 1px solid var(--border); border-radius: 4px; color: var(--muted); font-size: 0.72rem; white-space: nowrap; }
+.ext-list .ext-link::after { content: "↗"; }
+/* タブが 7 つになったため、狭い画面ではさらに詰める */
+@media (max-width: 480px) {
+  .tab { padding: 10px 4px; font-size: 0.76rem; }
+}

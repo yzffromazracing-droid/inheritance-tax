@@ -1066,7 +1066,10 @@ ZOYO_CLASSES = [
     },
 ]
 
+from shoukei import SHOUKEI_CLASSES  # noqa: E402  事業承継タブ（中小企業庁の情報を整理したもの）
+
 TABS = {
+    "shoukei": {"label": "事業承継", "classes": SHOUKEI_CLASSES},
     "sozoku": {"label": "相続税", "classes": SOZOKU_CLASSES},
     "zoyo": {"label": "贈与税", "classes": ZOYO_CLASSES},
     "zaisan": {"label": "財産評価", "classes": HYOKA_CLASSES},
@@ -1094,7 +1097,7 @@ def classify(item) -> dict:
         tags = {}
         for cls in spec["classes"]:
             for topic in cls["topics"]:
-                if any(_match(r, item, paths) for r in topic["rules"]):
+                if any(_match(r, item, paths) for r in topic.get("rules", [])):
                     tags[cls["key"]] = topic["name"]
                     break
         if tags:
@@ -1106,6 +1109,6 @@ def export() -> dict:
     """画面用の整理表（規則を除く）。"""
     return {tab: {"label": spec["label"],
                   "classes": [{"key": c["key"], "label": c["label"], "desc": c["desc"],
-                               "topics": [{k: t[k] for k in ("name", "desc", "table", "tables", "note") if k in t} for t in c["topics"]]}
+                               "topics": [{k: t[k] for k in ("name", "desc", "table", "tables", "note", "links") if k in t} for t in c["topics"]]}
                               for c in spec["classes"]]}
             for tab, spec in TABS.items()}
