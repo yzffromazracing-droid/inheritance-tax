@@ -516,3 +516,17 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 @media (max-width: 480px) {
   .tab { padding: 10px 4px; font-size: 0.76rem; }
 }
+
+/* 文字の大きさの調整：上のタブを大きく、その下の区分・資料の種類・テーマのボタンを小さく */
+.tab { font-size: 1.05rem; }
+.chips .chip { font-size: 0.8rem; padding: 3px 10px; }
+#dict-topic-filters .chip, #shoukei-topic-filters .chip, #sozoku-topic-filters .chip,
+#zoyo-topic-filters .chip, #zaisan-topic-filters .chip { font-size: 0.72rem; padding: 2px 9px; }
+@media (max-width: 480px) {
+  .tabs { gap: 0; }
+  .tab { padding: 10px 2px; font-size: 0.86rem; }
+  .chips .chip { font-size: 0.78rem; padding: 3px 9px; }
+}
+@media (max-width: 374px) {
+  .tab { font-size: 0.78rem; }
+}
