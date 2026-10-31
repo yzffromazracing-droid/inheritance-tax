@@ -541,3 +541,16 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   .tab { font-size: 0.9rem; }
   .dict-subtabs .subtab { font-size: 0.72rem; }
 }
+
+/* 検索欄はタイトルの下に 1 つだけ置く（各一覧の検索欄は使わない） */
+.panel .search-box { display: none; }
+.site-header .global-search { padding-top: 8px; }
+.site-header .global-search input { padding: 10px 14px; font-size: 1rem; }
+@media (max-width: 480px) {
+  .site-header .global-search { padding-top: 6px; }
+  .site-header .global-search input { padding: 8px 12px; }
+}
+/* 通達タブなど長いサブタブ名は、狭い画面では2行に折り返して画面内に収める */
+@media (max-width: 480px) {
+  .subtab { white-space: normal; min-width: 0; line-height: 1.3; }
+}

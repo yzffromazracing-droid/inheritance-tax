@@ -540,6 +540,7 @@
         if (id) {
           st.q = "";
           $(prefix + "-q").value = "";
+          $("global-q").value = "";
           st.category = "";
           select.value = "";
         }
@@ -547,6 +548,7 @@
       },
       topic: function (cls, topic) {
         st.q = "";
+        $("global-q").value = "";
         $(prefix + "-q").value = "";
         st.focus = "";
         choose(cls, topic);
@@ -806,7 +808,38 @@
         $("sub-" + s).hidden = !active;
       });
     });
+    syncSearch();
   }
+
+  /* ---------- タイトルの下の検索欄 ----------
+   * 検索欄は 1 つで、表示中のタブ（サブタブ）の一覧を検索する。
+   * 各一覧の検索欄（非表示）に語を渡して検索させ、タブを切り替えたときも同じ語で検索する。 */
+
+  var searchReady = false;
+
+  function activeSearchInput() {
+    var sub = SUBS[view.tab] ? view.sub[view.tab] : view.tab;
+    return $((sub === "all" ? "dict" : sub) + "-q");
+  }
+
+  function syncSearch() {
+    var g = $("global-q");
+    var inp = activeSearchInput();
+    if (!inp) return;
+    g.placeholder = inp.placeholder;
+    g.setAttribute("aria-label", inp.getAttribute("aria-label"));
+    if (searchReady && inp.value !== g.value) {
+      inp.value = g.value;
+      inp.dispatchEvent(new Event("input"));
+    }
+  }
+
+  $("global-q").addEventListener("input", function () {
+    var inp = activeSearchInput();
+    if (!inp || !searchReady) return;
+    inp.value = $("global-q").value;
+    inp.dispatchEvent(new Event("input"));
+  });
 
   // タブは URL（#tab=tsu&sub=so、#tab=nta&sub=qa）でも開ける
   function readHash() {
@@ -969,6 +1002,8 @@
     setupDocTab("ta", { only: "ta" });
     setupDocTab("qa", { only: "qa" });
     setupDocTab("bk", { only: "bk" });
+    searchReady = true;
+    syncSearch();
     applyFocus();
     getJSON("data/updates.json").then(renderUpdates, function () {
       // 更新記録がまだない（初回の取得から変更がない）ときは何も出さない
