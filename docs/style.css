@@ -530,3 +530,14 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 @media (max-width: 374px) {
   .tab { font-size: 0.78rem; }
 }
+
+/* 上のタブが 3 つ（辞書・国税庁の記事・通達）になったため、狭い画面でも大きめに表示する */
+@media (max-width: 480px) {
+  .tab { padding: 10px 8px; font-size: 0.95rem; }
+  .dict-subtabs { gap: 4px; }
+  .dict-subtabs .subtab { padding: 8px 2px; font-size: 0.78rem; }
+}
+@media (max-width: 374px) {
+  .tab { font-size: 0.9rem; }
+  .dict-subtabs .subtab { font-size: 0.72rem; }
+}
