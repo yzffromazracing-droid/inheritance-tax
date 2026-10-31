@@ -13,10 +13,10 @@
     bk: { label: "文書回答事例", short: "文書回答事例" },
   };
   var TSUTATSU = { kihon: true, hyoka: true, so: true, kobetsu: true };
-  var TABS = ["dict", "shoukei", "sozoku", "zoyo", "zaisan", "nta", "tsu"];
+  var TABS = ["dict", "nta", "tsu"];
   var DICT_TABS = ["shoukei", "sozoku", "zoyo", "zaisan"];
   // サブタブのあるタブ（先頭が既定）
-  var SUBS = { nta: ["ta", "qa", "bk"], tsu: ["kihon", "hyoka", "so", "kobetsu"] };
+  var SUBS = { dict: ["all", "shoukei", "sozoku", "zoyo", "zaisan"], nta: ["ta", "qa", "bk"], tsu: ["kihon", "hyoka", "so", "kobetsu"] };
   // 種別ごとの掲載先（タブ・サブタブ）
   var HOME = {
     kihon: { tab: "tsu", sub: "kihon" },
@@ -786,7 +786,7 @@
 
   /* ---------- タブ ---------- */
 
-  var view = { tab: "dict", sub: { nta: "ta", tsu: "kihon" }, id: "" };
+  var view = { tab: "dict", sub: { dict: "all", nta: "ta", tsu: "kihon" }, id: "" };
 
   function showView() {
     Array.prototype.forEach.call(document.querySelectorAll(".tab"), function (b) {
@@ -811,6 +811,10 @@
   // タブは URL（#tab=tsu&sub=so、#tab=nta&sub=qa）でも開ける
   function readHash() {
     var p = new URLSearchParams(location.hash.slice(1));
+    if (DICT_TABS.indexOf(p.get("tab")) !== -1) {
+      p.set("sub", p.get("tab"));
+      p.set("tab", "dict");
+    }
     view.tab = TABS.indexOf(p.get("tab")) !== -1 ? p.get("tab") : "dict";
     Object.keys(SUBS).forEach(function (t) {
       view.sub[t] = view.tab === t && SUBS[t].indexOf(p.get("sub")) !== -1 ? p.get("sub") : SUBS[t][0];
@@ -848,9 +852,10 @@
 
   // 相続税・贈与税・財産評価タブの区分のテーマを開く
   function openTopic(tab, cls, topic) {
-    view.tab = tab;
+    view.tab = "dict";
+    view.sub.dict = tab;
     view.id = "";
-    history.pushState({ fromLink: true }, "", "#tab=" + tab);
+    history.pushState({ fromLink: true }, "", "#sub=" + tab);
     showView();
     applyFocus();
     INSTANCES[tab].topic(cls, topic);

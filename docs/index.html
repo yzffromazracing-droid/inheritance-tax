@@ -13,10 +13,6 @@
     <h1>相続税区分辞書</h1>
     <nav class="tabs" role="tablist">
       <button class="tab is-active" role="tab" data-tab="dict" aria-selected="true">辞書</button>
-      <button class="tab" role="tab" data-tab="shoukei" aria-selected="false">事業承継</button>
-      <button class="tab" role="tab" data-tab="sozoku" aria-selected="false">相続税</button>
-      <button class="tab" role="tab" data-tab="zoyo" aria-selected="false">贈与税</button>
-      <button class="tab" role="tab" data-tab="zaisan" aria-selected="false">財産評価</button>
       <button class="tab" role="tab" data-tab="nta" aria-selected="false">国税庁の記事</button>
       <button class="tab" role="tab" data-tab="tsu" aria-selected="false">通達</button>
     </nav>
@@ -25,6 +21,15 @@
   <main>
     <!-- 辞書（すべての出典の横断検索） -->
     <section id="tab-dict" class="panel" role="tabpanel">
+      <nav class="subtabs dict-subtabs" role="tablist" aria-label="辞書の種類">
+        <button class="subtab is-active" role="tab" data-sub="all" aria-selected="true">横断検索</button>
+        <button class="subtab" role="tab" data-sub="shoukei" aria-selected="false">事業承継</button>
+        <button class="subtab" role="tab" data-sub="sozoku" aria-selected="false">相続税</button>
+        <button class="subtab" role="tab" data-sub="zoyo" aria-selected="false">贈与税</button>
+        <button class="subtab" role="tab" data-sub="zaisan" aria-selected="false">財産評価</button>
+      </nav>
+
+      <div id="sub-all" class="subpanel" role="tabpanel">
       <div class="search-box">
         <input id="dict-q" type="search" placeholder="例：小規模宅地、かしやたてつけち、3-1、名義預金" autocomplete="off" aria-label="すべての項目をキーワードで検索">
       </div>
@@ -35,11 +40,11 @@
       <details id="dict-updates" class="updates" hidden></details>
       <p id="dict-count" class="count"></p>
       <ul id="dict-results" class="results"></ul>
-      <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>収録しているすべての通達・記事をまとめて検索できます。スペース区切りで複数語を指定でき（すべてを含むものを表示）、「-語」で除外できます。検索語は本文にも一致します。ひらがな・カタカナの読み（例：れきねんかぜい）でも検索できます。テーマごとに整理した一覧は「相続税」「贈与税」「財産評価」タブで見られます。</p>
-    </section>
+      <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>収録しているすべての通達・記事をまとめて検索できます。スペース区切りで複数語を指定でき（すべてを含むものを表示）、「-語」で除外できます。検索語は本文にも一致します。ひらがな・カタカナの読み（例：れきねんかぜい）でも検索できます。テーマごとに整理した一覧は辞書タブの「相続税」「贈与税」「財産評価」で見られます。</p>
+      </div>
 
     <!-- 事業承継（中小企業庁の情報と国税庁の事業承継税制） -->
-    <section id="tab-shoukei" class="panel" role="tabpanel" hidden>
+      <div id="sub-shoukei" class="subpanel" role="tabpanel" hidden>
       <div class="search-box">
         <input id="shoukei-q" type="search" placeholder="例：M&A、後継者、遺留分、特例承継計画、70の7の5" autocomplete="off" aria-label="事業承継の情報をキーワードで検索">
       </div>
@@ -51,10 +56,10 @@
       <p id="shoukei-count" class="count"></p>
       <ul id="shoukei-results" class="results"></ul>
       <p class="source">出典：<a href="https://www.chusho.meti.go.jp/zaimu/shoukei/index.html" target="_blank" rel="noopener">中小企業庁ホームページ「事業承継」</a>（「事業承継を知る」「事業承継を実施する」「事業承継の支援策」、2026年10月30日時点）、国税庁ホームページ（措置法通達・タックスアンサー）<br>区分を選ぶと、中小企業庁の情報をテーマごとに整理した説明・表と関連ページへのリンク、関係する国税庁の通達・記事を表示します。「すべて」では事業承継税制に関する国税庁の通達・記事を検索できます。中小企業庁の情報は自動更新の対象外のため、最新の内容は中小企業庁のページでご確認ください。</p>
-    </section>
+      </div>
 
     <!-- 相続税（区分ごとの横断検索） -->
-    <section id="tab-sozoku" class="panel" role="tabpanel" hidden>
+      <div id="sub-sozoku" class="subpanel" role="tabpanel" hidden>
       <div class="search-box">
         <input id="sozoku-q" type="search" placeholder="例：小規模宅地 老人ホーム、かしやたてつけち、3-1、名義" autocomplete="off" aria-label="相続税の項目をキーワードで検索">
       </div>
@@ -65,11 +70,11 @@
       </div>
       <p id="sozoku-count" class="count"></p>
       <ul id="sozoku-results" class="results"></ul>
-      <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>区分を選ぶと、テーマごとの説明と、関係する通達・記事のタイトルを一覧にします。財産の評価は「財産評価」タブにまとめています。スペース区切りで複数語を指定でき（すべてを含むものを表示）、「-語」で除外できます。検索語は本文にも一致します。ひらがな・カタカナの読み（例：かしやたてつけち）でも検索できます。</p>
-    </section>
+      <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>区分を選ぶと、テーマごとの説明と、関係する通達・記事のタイトルを一覧にします。財産の評価は辞書タブの「財産評価」にまとめています。スペース区切りで複数語を指定でき（すべてを含むものを表示）、「-語」で除外できます。検索語は本文にも一致します。ひらがな・カタカナの読み（例：かしやたてつけち）でも検索できます。</p>
+      </div>
 
     <!-- 贈与税（区分ごとの横断検索） -->
-    <section id="tab-zoyo" class="panel" role="tabpanel" hidden>
+      <div id="sub-zoyo" class="subpanel" role="tabpanel" hidden>
       <div class="search-box">
         <input id="zoyo-q" type="search" placeholder="例：配偶者控除、住宅取得等資金、れきねんかぜい、名義変更" autocomplete="off" aria-label="贈与税の項目をキーワードで検索">
       </div>
@@ -80,11 +85,11 @@
       </div>
       <p id="zoyo-count" class="count"></p>
       <ul id="zoyo-results" class="results"></ul>
-      <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>区分を選ぶと、テーマごとの説明と、関係する通達・記事のタイトルを一覧にします。財産の評価は「財産評価」タブにまとめています。スペース区切りで複数語を指定でき、「-語」で除外できます。ひらがな・カタカナの読みでも検索できます。</p>
-    </section>
+      <p class="source">出典：国税庁ホームページ（相続税法基本通達・財産評価基本通達・措置法通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>区分を選ぶと、テーマごとの説明と、関係する通達・記事のタイトルを一覧にします。財産の評価は辞書タブの「財産評価」にまとめています。スペース区切りで複数語を指定でき、「-語」で除外できます。ひらがな・カタカナの読みでも検索できます。</p>
+      </div>
 
     <!-- 財産評価（区分ごとの横断検索） -->
-    <section id="tab-zaisan" class="panel" role="tabpanel" hidden>
+      <div id="sub-zaisan" class="subpanel" role="tabpanel" hidden>
       <div class="search-box">
         <input id="zaisan-q" type="search" placeholder="例：貸家建付地、るいじぎょうしゅ、20-2、配偶者居住権" autocomplete="off" aria-label="財産評価の項目をキーワードで検索">
       </div>
@@ -96,6 +101,7 @@
       <p id="zaisan-count" class="count"></p>
       <ul id="zaisan-results" class="results"></ul>
       <p class="source">出典：国税庁ホームページ（財産評価基本通達・相続税法基本通達・個別通達・タックスアンサー・質疑応答事例・文書回答事例）　取得日：<span class="fetched"></span><br>相続税・贈与税に共通する財産の評価（評価の原則、土地・家屋、株式・出資、その他の財産）をまとめています。区分を選ぶと、テーマごとの説明と、関係する通達・記事のタイトルを一覧にします。スペース区切りで複数語を指定でき、「-語」で除外できます。ひらがな・カタカナの読みでも検索できます。</p>
+      </div>
     </section>
 
     <!-- 国税庁の記事 -->
