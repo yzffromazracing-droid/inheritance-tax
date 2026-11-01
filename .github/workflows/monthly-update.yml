@@ -4,7 +4,7 @@ name: 国税庁データの月次更新
 
 on:
   schedule:
-    - cron: "17 21 1 * *" # 毎月2日 6:17（日本時間）
+    - cron: "17 21 14 * *" # 毎月15日 6:17（日本時間）。UTC では前日の14日 21:17
   workflow_dispatch: # Actions 画面の「Run workflow」から手動でも実行できる
 
 permissions:
