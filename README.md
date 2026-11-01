@@ -72,7 +72,7 @@ python3 scraper/build_yomi.py         # 読み表に scraper/yomi_extra.tsv の�
 
 ## 月次の自動更新
 
-`.github/workflows/monthly-update.yml`（GitHub Actions）が毎月2日 6:17（日本時間）に次の処理を行います。
+`.github/workflows/monthly-update.yml`（GitHub Actions）が毎月15日 6:17（日本時間）に次の処理を行います。
 
 1. 国税庁ホームページから、収録しているすべての通達・記事を取得し直す（キャッシュは使わない）
 2. 前回のデータ（`docs/data/dictionary.json`）と項目ごとに比べ、追加・削除・更新された項目を調べる
