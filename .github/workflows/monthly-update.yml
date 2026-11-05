@@ -36,6 +36,13 @@ jobs:
           python3 scraper/build_dictionary.py --cache "$RUNNER_TEMP/nta-cache" \
             --only-if-changed --report "$RUNNER_TEMP/update-report.md"
 
+      - name: 新しい用語の読みを読み表に追加
+        # 読み表の生成に失敗しても、データの更新は続ける
+        continue-on-error: true
+        run: |
+          pip install -r scraper/requirements-yomi.txt
+          python3 scraper/build_yomi.py --from-data
+
       - name: 変更があればコミット
         id: commit
         run: |
@@ -44,6 +51,8 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          # 国税庁のデータに変更がなく読み表だけが変わった場合のコミットメッセージ
+          [ -f "$RUNNER_TEMP/update-report.md" ] || printf '読み表の更新（辞書データ中の用語の読みを追加）\n' > "$RUNNER_TEMP/update-report.md"
           cat "$RUNNER_TEMP/update-report.md" >> "$GITHUB_STEP_SUMMARY"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
