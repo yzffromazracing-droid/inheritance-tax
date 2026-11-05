@@ -77,14 +77,16 @@ def readings_from_data(data):
 
     for text in texts_from_data(data):
         for part in chunks(text):
-            run = []  # 続いた名詞
+            run = []  # 続いた名詞（「未分割」の「未」のような接頭辞、「建築中」の「中」のような接尾辞も含める）
             for m in tok.tokenize(part, mode_c):
-                if m.part_of_speech()[0] != "名詞":
+                pos = m.part_of_speech()[0]
+                if pos not in ("名詞", "接頭辞", "接尾辞"):
                     run = []
                     continue
-                yield from word(m.surface(), m.reading_form())
-                for sub in m.split(mode_a):
-                    yield from word(sub.surface(), sub.reading_form())
+                if pos == "名詞":
+                    yield from word(m.surface(), m.reading_form())
+                    for sub in m.split(mode_a):
+                        yield from word(sub.surface(), sub.reading_form())
                 run.append(m)
                 # 2〜3語の名詞の並び（例：小規模＋宅地＋等）も1語として加える
                 for n in (2, 3):
