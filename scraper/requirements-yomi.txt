@@ -1,0 +1,3 @@
+# 読み表の生成（scraper/build_yomi.py --from-data）にだけ使う
+sudachipy>=0.6.8,<0.7
+sudachidict_core
