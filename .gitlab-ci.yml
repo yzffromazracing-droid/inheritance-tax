@@ -6,7 +6,8 @@
 #   （そのプッシュで公開し直される）。手動実行で変数 NTA_UPDATE=1 を付けても同じ処理を行う
 #
 # CI/CD の変数（Settings → CI/CD → Variables）に GITLAB_PUSH_TOKEN（Masked）を登録する。
-# write_repository 権限のプロジェクトアクセストークン（ロールは Developer 以上）を使う。
+# write_repository 権限・ロール Maintainer のプロジェクトアクセストークン（main は保護されたブランチのため）、
+# または write_repository 権限の個人アクセストークンを使う。
 
 stages:
   - update

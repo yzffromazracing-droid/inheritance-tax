@@ -54,7 +54,7 @@ python3 -m http.server -d docs 8000
 
 月次の自動更新も `.gitlab-ci.yml` の `nta-update` ジョブで行います。GitLab の画面で次の設定が必要です。
 
-1. Settings → Access tokens：`write_repository` 権限（ロール Developer 以上）のプロジェクトアクセストークンを作る
+1. Settings → Access tokens：`write_repository` 権限・ロール Maintainer のプロジェクトアクセストークンを作る（main は保護されたブランチのため Maintainer が必要。プロジェクトアクセストークンを作れない場合は、Edit profile → Access tokens で `write_repository` 権限の個人アクセストークンを作る）
 2. Settings → CI/CD → Variables：`GITLAB_PUSH_TOKEN` に 1 のトークンを登録する（Masked）
 3. Build → Pipeline schedules：毎月15日 6:17（Asia/Tokyo）、変数 `NTA_UPDATE` = `1` のスケジュールを作る
 
