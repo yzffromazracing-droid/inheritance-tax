@@ -56,7 +56,7 @@ python3 -m http.server -d docs 8000
 
 1. Settings → Access tokens：`write_repository` 権限・ロール Maintainer のプロジェクトアクセストークンを作る（main は保護されたブランチのため Maintainer が必要。プロジェクトアクセストークンを作れない場合は、Edit profile → Access tokens で `write_repository` 権限の個人アクセストークンを作る）
 2. Settings → CI/CD → Variables：`GITLAB_PUSH_TOKEN` に 1 のトークンを登録する（Masked）
-3. Build → Pipeline schedules：毎月15日 6:17（Asia/Tokyo）、変数 `NTA_UPDATE` = `1` のスケジュールを作る
+3. Build → Pipeline schedules：毎月15日 6:17（Asia/Tokyo）のスケジュールを作る（変数は不要）
 
 ## 辞書データの更新
 

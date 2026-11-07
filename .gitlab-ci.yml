@@ -1,7 +1,7 @@
 # GitLab CI：サイトの公開（GitLab Pages）と国税庁データの月次更新
 #
 # - main へのプッシュ、または変数なしの手動実行（Build → Pipelines → Run pipeline）：docs/ を GitLab Pages に公開する
-# - パイプラインのスケジュール（変数 NTA_UPDATE=1、毎月15日 6:17 日本時間）：
+# - パイプラインのスケジュール（毎月15日 6:17 日本時間。変数は不要）：
 #   国税庁ホームページから取得し直して前回のデータと比べ、変更があれば docs/data をコミットして main にプッシュする
 #   （そのプッシュで公開し直される）。手動実行で変数 NTA_UPDATE=1 を付けても同じ処理を行う
 #
@@ -18,7 +18,10 @@ nta-update:
   image: python:3.12-bookworm
   timeout: 90 minutes
   rules:
-    - if: ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web") && $NTA_UPDATE == "1"
+    # スケジュールからの実行は、変数がなくても常に更新する（このプロジェクトのスケジュールは月次更新だけ）
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    # 手動実行（Run pipeline）は、変数 NTA_UPDATE=1 を付けたときだけ更新する
+    - if: $CI_PIPELINE_SOURCE == "web" && $NTA_UPDATE == "1"
   script:
     - pip install -q -r scraper/requirements.txt
     # 項目数が大きく減った場合（取得の失敗）は、ここで中止してデータを壊さない
