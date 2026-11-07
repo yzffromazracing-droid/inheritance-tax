@@ -1,0 +1,51 @@
+# GitLab CI：サイトの公開（GitLab Pages）と国税庁データの月次更新
+#
+# - main へのプッシュ、または変数なしの手動実行（Build → Pipelines → Run pipeline）：docs/ を GitLab Pages に公開する
+# - パイプラインのスケジュール（変数 NTA_UPDATE=1、毎月15日 6:17 日本時間）：
+#   国税庁ホームページから取得し直して前回のデータと比べ、変更があれば docs/data をコミットして main にプッシュする
+#   （そのプッシュで公開し直される）。手動実行で変数 NTA_UPDATE=1 を付けても同じ処理を行う
+#
+# CI/CD の変数（Settings → CI/CD → Variables）に GITLAB_PUSH_TOKEN（Masked）を登録する。
+# write_repository 権限のプロジェクトアクセストークン（ロールは Developer 以上）を使う。
+
+stages:
+  - update
+  - deploy
+
+nta-update:
+  stage: update
+  image: python:3.12-bookworm
+  timeout: 90 minutes
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web") && $NTA_UPDATE == "1"
+  script:
+    - pip install -q -r scraper/requirements.txt
+    # 項目数が大きく減った場合（取得の失敗）は、ここで中止してデータを壊さない
+    - python3 scraper/build_dictionary.py --cache "$CI_PROJECT_DIR/.cache/nta" --only-if-changed --report "$CI_PROJECT_DIR/update-report.md"
+    # 新しい用語の読みを読み表に追加する。失敗してもデータの更新は続ける
+    - pip install -q -r scraper/requirements-yomi.txt && python3 scraper/build_yomi.py --from-data || echo "読み表の生成に失敗しました（データの更新は続けます）"
+    - |
+      if [ -z "$(git status --porcelain -- docs/data)" ]; then
+        echo "国税庁ホームページの内容に変更はありませんでした。"
+        exit 0
+      fi
+      [ -f update-report.md ] || printf '読み表の更新（辞書データ中の用語の読みを追加）\n' > update-report.md
+      cat update-report.md
+      git config user.name "nta-update"
+      git config user.email "nta-update@noreply.gitlab.com"
+      git add docs/data
+      git commit -F update-report.md
+      git push "https://oauth2:${GITLAB_PUSH_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git" "HEAD:${CI_DEFAULT_BRANCH}"
+
+pages:
+  stage: deploy
+  image: alpine:3.20
+  script:
+    - mkdir -p public
+    - cp -r docs/. public/
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $NTA_UPDATE != "1"

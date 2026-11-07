@@ -45,7 +45,18 @@ python3 -m http.server -d docs 8000
 # http://localhost:8000/ を開く
 ```
 
-`docs/` は静的ファイルのみで構成されているため、GitHub Pages（Settings → Pages → `docs/` フォルダ）でそのまま公開できます。
+`docs/` は静的ファイルのみで構成されています。
+
+## 公開（GitLab Pages）
+
+公開ページは GitLab（https://gitlab.com/yzf.from.azracing/inheritance-tax-dictionary ）の GitLab Pages に移行しました。
+`.gitlab-ci.yml` の `pages` ジョブが、main へのプッシュのたびに `docs/` をそのまま公開します（URL は GitLab の Deploy → Pages に表示されます）。
+
+月次の自動更新も `.gitlab-ci.yml` の `nta-update` ジョブで行います。GitLab の画面で次の設定が必要です。
+
+1. Settings → Access tokens：`write_repository` 権限（ロール Developer 以上）のプロジェクトアクセストークンを作る
+2. Settings → CI/CD → Variables：`GITLAB_PUSH_TOKEN` に 1 のトークンを登録する（Masked）
+3. Build → Pipeline schedules：毎月15日 6:17（Asia/Tokyo）、変数 `NTA_UPDATE` = `1` のスケジュールを作る
 
 ## 辞書データの更新
 
