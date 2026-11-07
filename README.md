@@ -86,18 +86,18 @@ python3 scraper/build_yomi.py --from-data  # さらに辞書データ中の用�
 
 ## 月次の自動更新
 
-`.github/workflows/monthly-update.yml`（GitHub Actions）が毎月15日 6:17（日本時間）に次の処理を行います。
+`.gitlab-ci.yml` の `nta-update` ジョブ（GitLab のパイプラインスケジュール）が毎月15日 6:17（日本時間）に次の処理を行います。
 
 1. 国税庁ホームページから、収録しているすべての通達・記事を取得し直す（キャッシュは使わない）
 2. 前回のデータ（`docs/data/dictionary.json`）と項目ごとに比べ、追加・削除・更新された項目を調べる
-3. 変更があれば `docs/data/dictionary.json` と更新記録 `docs/data/updates.json` をコミットし、GitHub Pages を再ビルドする
+3. 変更があれば `docs/data/dictionary.json` と更新記録 `docs/data/updates.json` をコミットして main にプッシュし、GitLab Pages に公開し直す
    （変更がなければ何もしない。コミットメッセージと Actions の実行結果の画面に変更の一覧が出ます）
 4. 新しく出てきた用語の読みを読み表 `docs/data/yomi.json` に追加する（この手順が失敗してもデータの更新は行います）
 
 - 前回より項目数が3％を超えて減った場合は、取得の失敗とみなして更新を中止します（Actions の実行が失敗として記録されます）
 - 新しく追加された項目のうち、相続税・贈与税・財産評価の区分に当てはまらなかったものはコミットメッセージに書き出します。必要なら `scraper/bunrui.py` に規則を足してください
 - アプリの辞書タブの「最近の更新」に、直近の更新で追加・更新・削除された項目が表示されます
-- すぐに更新したいときは、GitHub の Actions → 「国税庁データの月次更新」→「Run workflow」で手動実行できます
+- すぐに更新したいときは、GitLab の Build → Pipelines → Run pipeline で、変数 `NTA_UPDATE` = `1` を付けて手動実行できます
 
 手元で同じ処理を行う場合：
 
