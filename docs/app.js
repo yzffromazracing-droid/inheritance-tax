@@ -855,6 +855,19 @@
     view.id = p.get("id") || "";
   }
 
+  // URL のテーマ（#sub=zaisan&cls=hyoka_hayami&t=2、t は区分の中のテーマの番号）を辞書タブで開く。
+  // Facebook への投稿のリンクから開くときに使う
+  function applyTopicLink() {
+    if (!ARTICLES.length || view.tab !== "dict") return;
+    var p = new URLSearchParams(location.hash.slice(1));
+    var tab = view.sub.dict;
+    var cls = p.get("cls");
+    var c = cls && BUNRUI[tab] && BUNRUI[tab][cls];
+    if (!c || !INSTANCES[tab]) return;
+    var t = c.topics[parseInt(p.get("t"), 10)];
+    INSTANCES[tab].topic(cls, t ? t.name : "");
+  }
+
   // URL の id の項目を、掲載先の一覧で開く
   function applyFocus() {
     if (!ARTICLES.length) return;
@@ -930,6 +943,7 @@
       readHash();
       showView();
       applyFocus();
+      applyTopicLink();
     }
     window.addEventListener("hashchange", onNavigate);
     window.addEventListener("popstate", onNavigate);
@@ -1005,6 +1019,7 @@
     searchReady = true;
     syncSearch();
     applyFocus();
+    applyTopicLink();
     getJSON("data/updates.json").then(renderUpdates, function () {
       // 更新記録がまだない（初回の取得から変更がない）ときは何も出さない
     });

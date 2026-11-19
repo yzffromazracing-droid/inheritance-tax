@@ -94,6 +94,28 @@ python3 scraper/build_yomi.py --from-data  # さらに辞書データ中の用�
 python3 scraper/build_dictionary.py --only-if-changed --report update-report.md
 ```
 
+## Facebook への毎日の投稿
+
+`.github/workflows/facebook-post.yml`（GitHub Actions）が毎日 8:17（日本時間）に、辞書タブの「事業承継」「相続税」「贈与税」「財産評価」の
+テーマを1件、図解カード（1080×1080）付きで Facebook ページに投稿します。
+
+- テーマは日付から決まり、4つのタブを順に巡ります（129テーマを約4か月で一巡）
+- 投稿の本文：テーマ名、区分、説明、表（速算表・早見表など）、関係する通達・記事（最大3件）、辞書のそのテーマを開くリンク、ハッシュタグ
+- 図解カード：テーマ名と区分、表（収まる場合）と説明（`social/facebook_image.py`、rsvg-convert と Noto Sans CJK で PNG にする）
+- リポジトリの Settings → Secrets and variables → Actions に Secret `FB_PAGE_ID`（ページID）と `FB_PAGE_ACCESS_TOKEN`（pages_manage_posts 権限のページアクセストークン）を登録すると投稿が始まります（未登録のあいだは投稿しません）
+- 個人（ユーザー）のトークンを登録した場合は、そのユーザーが管理するページのトークンを取り出して投稿し、入れ替えるようログで案内します
+- Actions → 「Facebook への毎日の投稿」→「Run workflow」で手動実行できます。既定は投稿せずに本文と画像だけ作る設定で、画像は Artifacts からダウンロードできます
+
+手元で本文と画像を確かめる場合：
+
+```sh
+python3 social/facebook_post.py --dry-run --date=2026-11-20
+python3 social/facebook_image.py card.svg --date=2026-11-20
+python3 -m unittest discover -s social
+```
+
+辞書は `#sub=zaisan&cls=hyoka_hayami&t=2` のような URL（`t` は区分の中のテーマの番号）で、そのテーマを開けます。
+
 ## データ形式
 
 `docs/data/dictionary.json`
