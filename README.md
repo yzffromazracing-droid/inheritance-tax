@@ -96,7 +96,7 @@ python3 scraper/build_dictionary.py --only-if-changed --report update-report.md
 
 ## Facebook への毎日の投稿
 
-`.github/workflows/facebook-post.yml`（GitHub Actions）が毎日 8:17（日本時間）に、辞書タブの「事業承継」「相続税」「贈与税」「財産評価」の
+`.github/workflows/facebook-post.yml`（GitHub Actions）が毎日 16:00（日本時間）に、辞書タブの「事業承継」「相続税」「贈与税」「財産評価」の
 テーマを1件、図解カード（1080×1080）付きで Facebook ページに投稿します。
 
 - テーマは日付から決まり、4つのタブを順に巡ります（129テーマを約4か月で一巡）
