@@ -59,6 +59,14 @@ class MessageTest(unittest.TestCase):
         self.assertEqual(len({i["kind"] for i in picked}), len(picked))
         self.assertGreaterEqual(total, len(picked))
 
+    def test_related_items_have_nta_links(self):
+        t = next(x for x in fp.topics(DATA) if x["topic"]["name"] == "相続税額の2割加算")
+        msg = fp.build_message(DATA, t)
+        picked, _ = fp.related_items(DATA, t)
+        for i in picked:
+            self.assertIn("　" + i["url"], msg)
+            self.assertTrue(i["url"].startswith("https://www.nta.go.jp/"))
+
 
 class PostTest(unittest.TestCase):
     def setUp(self):
