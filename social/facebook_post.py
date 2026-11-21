@@ -6,7 +6,6 @@
 環境変数:
     FB_PAGE_ID           : 投稿先のFacebookページID
     FB_PAGE_ACCESS_TOKEN : ページアクセストークン（pages_manage_posts 権限）
-    SITE_URL             : 投稿に添える辞書のURL（任意。既定は GitHub Pages の URL）
     FB_GRAPH_VERSION     : Graph APIのバージョン（任意。既定 v23.0）
 
 投稿するのは、辞書タブの「事業承継」「相続税」「贈与税」「財産評価」の各テーマ（説明・表・関係する通達と記事）。
@@ -20,11 +19,9 @@ import os
 import sys
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-from urllib.parse import urlencode
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "docs/data/dictionary.json"
-DEFAULT_SITE_URL = "https://yzffromazracing-droid.github.io/inheritance-tax/"
 JST = timezone(timedelta(hours=9))
 
 TAB_ORDER = ["shoukei", "sozoku", "zoyo", "zaisan"]
@@ -86,14 +83,6 @@ def related_items(data, entry, limit=MAX_RELATED):
     return picked, len(hits)
 
 
-def topic_url(site_url, entry):
-    """辞書のそのテーマを開くURL（t は区分の中のテーマの番号。0 から数える）。"""
-    if not site_url:
-        return ""
-    params = urlencode({"sub": entry["tab"], "cls": entry["cls"], "t": entry["index"]})
-    return site_url.rstrip("/") + "/#" + params
-
-
 def table_lines(tb):
     lines = []
     if tb.get("caption"):
@@ -105,7 +94,8 @@ def table_lines(tb):
     return lines
 
 
-def build_message(data, entry, site_url=""):
+def build_message(data, entry):
+    """投稿の本文。辞書の公開ページの URL は載せない。"""
     t = entry["topic"]
     lines = ["【今日の相続税区分】" + t["name"], "", "▶ 区分：" + entry["tab_label"] + "｜" + entry["cls_label"], "", t["desc"]]
 
@@ -130,9 +120,6 @@ def build_message(data, entry, site_url=""):
         for link in links[:2]:
             lines.append("・" + link["title"] + " " + link["url"])
 
-    url = topic_url(site_url, entry)
-    if url:
-        lines += ["", "全文や関連する通達・記事は「相続税区分辞書」で確認できます。", url]
     lines += ["", " ".join(HASHTAGS[entry["tab"]] + ["#税務"])]
     return "\n".join(lines)
 
@@ -206,8 +193,7 @@ def main():
 
     data = load_data()
     entry = pick(data, parse_date(args.date))
-    site_url = os.environ.get("SITE_URL") or DEFAULT_SITE_URL
-    message = build_message(data, entry, site_url)
+    message = build_message(data, entry)
 
     image = args.image
     if image and not Path(image).exists():

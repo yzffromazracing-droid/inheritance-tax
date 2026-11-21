@@ -100,7 +100,7 @@ python3 scraper/build_dictionary.py --only-if-changed --report update-report.md
 テーマを1件、図解カード（1080×1080）付きで Facebook ページに投稿します。
 
 - テーマは日付から決まり、4つのタブを順に巡ります（129テーマを約4か月で一巡）
-- 投稿の本文：テーマ名、区分、説明、表（速算表・早見表など）、関係する通達・記事（最大3件）、辞書のそのテーマを開くリンク、ハッシュタグ
+- 投稿の本文：テーマ名、区分、説明、表（速算表・早見表など）、関係する通達・記事（最大3件）、ハッシュタグ（辞書の公開ページの URL は載せない）
 - 図解カード：テーマ名と区分、表（収まる場合）と説明（`social/facebook_image.py`、rsvg-convert と Noto Sans CJK で PNG にする）
 - リポジトリの Settings → Secrets and variables → Actions に Secret `FB_PAGE_ID`（ページID）と `FB_PAGE_ACCESS_TOKEN`（pages_manage_posts 権限のページアクセストークン）を登録すると投稿が始まります（未登録のあいだは投稿しません）
 - 個人（ユーザー）のトークンを登録した場合は、そのユーザーが管理するページのトークンを取り出して投稿し、入れ替えるようログで案内します

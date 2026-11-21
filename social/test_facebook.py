@@ -40,9 +40,10 @@ class TopicsTest(unittest.TestCase):
 class MessageTest(unittest.TestCase):
     def test_message_contents(self):
         for t in fp.topics(DATA):
-            msg = fp.build_message(DATA, t, fp.DEFAULT_SITE_URL)
+            msg = fp.build_message(DATA, t)
             self.assertIn("【今日の相続税区分】" + t["topic"]["name"], msg)
-            self.assertIn("#sub=" + t["tab"] + "&cls=" + t["cls"] + "&t=" + str(t["index"]), msg)
+            self.assertNotIn("github.io", msg)
+            self.assertNotIn("#sub=", msg)
             self.assertIn(fp.HASHTAGS[t["tab"]][0], msg)
             self.assertLess(len(msg), 5000)
 
