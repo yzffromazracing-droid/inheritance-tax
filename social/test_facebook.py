@@ -7,6 +7,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import already_posted as ap  # noqa: E402
 import facebook_image as fi  # noqa: E402
 import facebook_post as fp  # noqa: E402
 
@@ -129,6 +130,21 @@ class ImageTest(unittest.TestCase):
         lines = fi.wrap("あ" * 100, 10, 2)
         self.assertEqual(len(lines), 2)
         self.assertTrue(lines[-1].endswith("…"))
+
+
+class AlreadyPostedTest(unittest.TestCase):
+    def test_jst_midnight(self):
+        from datetime import datetime, timezone
+        # 日本時間 11/21 23:57（UTC 14:57）は 11/21 の0時（UTC 11/20 15:00）から数える
+        self.assertEqual(ap.jst_midnight_utc(datetime(2026, 11, 21, 14, 57, tzinfo=timezone.utc)), "2026-11-20T15:00:00Z")
+        # 日本時間 11/22 0:30（UTC 11/21 15:30）は 11/22 の0時から
+        self.assertEqual(ap.jst_midnight_utc(datetime(2026, 11, 21, 15, 30, tzinfo=timezone.utc)), "2026-11-21T15:00:00Z")
+
+    def test_posted_line(self):
+        log = "2026-11-22T08:48:33.2235396Z トークンの確認：持ち主と FB_PAGE_ID が一致\n" \
+              "2026-11-22T08:48:33.2236296Z posted: ***_122123939181506173（暦年課税の基礎控除（110万円）・写真付き）\n"
+        self.assertTrue(ap.has_posted_line(log))
+        self.assertFalse(ap.has_posted_line("2026-11-22T08:48:33Z 【今日の相続税区分】暦年課税の基礎控除\n"))
 
 
 if __name__ == "__main__":

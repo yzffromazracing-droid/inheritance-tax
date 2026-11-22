@@ -99,6 +99,7 @@ python3 scraper/build_dictionary.py --only-if-changed --report update-report.md
 `.github/workflows/facebook-post.yml`（GitHub Actions）が毎日 15:47（日本時間。GitHub の予約は遅れることがあるので16時前後）に、辞書タブの「事業承継」「相続税」「贈与税」「財産評価」の
 テーマを1件、図解カード（1080×1080）付きで Facebook ページに投稿します。
 
+- その日（日本時間）にすでに投稿していれば投稿しません（GitHub の予約が遅れて起動したときの二重投稿を防ぐため、実行ログの「posted:」で確かめます）
 - テーマは日付から決まり、4つのタブを順に巡ります（129テーマを約4か月で一巡）
 - 投稿の本文：テーマ名、区分、説明、表（速算表・早見表など）、関係する通達・記事（最大3件。国税庁の原文へのリンク付き）、ハッシュタグ（辞書の公開ページの URL は載せない）
 - 図解カード：テーマ名と区分、表（収まる場合）と説明（`social/facebook_image.py`、rsvg-convert と Noto Sans CJK で PNG にする）
