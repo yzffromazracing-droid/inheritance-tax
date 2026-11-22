@@ -2,6 +2,8 @@
 #
 # - 毎日 15:47（日本時間）に投稿する。GitHub の予約は毎時ちょうどに集中して遅れたり実行されなかったりするため、
 #   混まない分に予約している（遅れても16時前後に投稿される）
+# - その日（日本時間）にすでに投稿していれば投稿しない（予約が遅れて起動したときや、強制実行と重なったときの二重投稿を防ぐ）。
+#   日付を指定した手動実行と、投稿しない試し（dry_run）では確かめない
 # - Actions 画面の「Run workflow」からも実行できる。既定は「投稿せず本文と画像だけ作る」（dry_run）。
 #   作った画像は実行結果の Artifacts（facebook-card）からダウンロードできる
 #
@@ -26,6 +28,7 @@ on:
 
 permissions:
   contents: read
+  actions: read # 今日すでに投稿したかを実行ログで確かめるため
 
 concurrency:
   group: facebook-post
@@ -51,13 +54,22 @@ jobs:
       - name: テスト
         run: python3 -m unittest discover -s social
 
+      - name: 今日すでに投稿したか確かめる
+        id: guard
+        if: inputs.dry_run != true && !inputs.date
+        run: python3 social/already_posted.py
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
       - name: 図解カードを作る
+        if: steps.guard.outputs.skip != 'true'
         # 画像が作れなくても文章だけで投稿する
         run: python3 social/facebook_image.py "$RUNNER_TEMP/card.png" ${DATE:+--date="$DATE"} || echo "画像を作れなかったため文章だけで投稿します"
         env:
           DATE: ${{ inputs.date }}
 
       - name: 投稿する
+        if: steps.guard.outputs.skip != 'true'
         run: |
           ARGS="--image=$RUNNER_TEMP/card.png"
           [ -n "$DATE" ] && ARGS="$ARGS --date=$DATE"
@@ -70,7 +82,7 @@ jobs:
           FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
 
       - name: 画像を保存する
-        if: always()
+        if: always() && steps.guard.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: facebook-card
