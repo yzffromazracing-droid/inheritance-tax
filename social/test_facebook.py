@@ -140,6 +140,16 @@ class AlreadyPostedTest(unittest.TestCase):
         # 日本時間 11/22 0:30（UTC 11/21 15:30）は 11/22 の0時から
         self.assertEqual(ap.jst_midnight_utc(datetime(2026, 11, 21, 15, 30, tzinfo=timezone.utc)), "2026-11-21T15:00:00Z")
 
+    def test_late_schedule(self):
+        from datetime import datetime, timezone
+        # 日本時間 3:47（UTC 前日 18:47）に起動した予約は投稿しない
+        self.assertTrue(ap.late_schedule("schedule", datetime(2026, 11, 23, 18, 47, tzinfo=timezone.utc)))
+        # 日本時間 15:47・23:55 に起動した予約は投稿する
+        self.assertFalse(ap.late_schedule("schedule", datetime(2026, 11, 24, 6, 47, tzinfo=timezone.utc)))
+        self.assertFalse(ap.late_schedule("schedule", datetime(2026, 11, 22, 14, 55, tzinfo=timezone.utc)))
+        # 手動・強制実行は時刻にかかわらず投稿する
+        self.assertFalse(ap.late_schedule("workflow_dispatch", datetime(2026, 11, 23, 18, 47, tzinfo=timezone.utc)))
+
     def test_posted_line(self):
         log = "2026-11-22T08:48:33.2235396Z トークンの確認：持ち主と FB_PAGE_ID が一致\n" \
               "2026-11-22T08:48:33.2236296Z posted: ***_122123939181506173（暦年課税の基礎控除（110万円）・写真付き）\n"
