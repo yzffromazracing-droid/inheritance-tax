@@ -23,7 +23,10 @@ class TopicsTest(unittest.TestCase):
         self.assertEqual(len(keys), len(ts))
 
     def test_consecutive_days_rotate_tabs(self):
+        # 一巡の始まりの日から4日間は、4つのタブを1日ずつ巡る
+        n = len(fp.topics(DATA))
         start = date(2026, 11, 20)
+        start += timedelta(days=(-fp.day_index(start)) % n)
         tabs = [fp.pick(DATA, start + timedelta(days=i))["tab"] for i in range(4)]
         self.assertEqual(len(set(tabs)), 4)
 
