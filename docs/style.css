@@ -492,6 +492,33 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .results > li { min-width: 0; }
 .rate-caption { margin: 10px 0 4px; font-size: 0.88rem; }
 
+/* 計算の仕方：図解（手順・計算式・割合の帯） */
+.fig { margin: 6px 0 12px; }
+.fig-label { display: block; font-size: 0.9rem; line-height: 1.35; }
+.fig-sub { display: block; margin-top: 2px; color: var(--muted); font-size: 0.78rem; line-height: 1.4; }
+.fig-flow { list-style: none; margin: 0; padding: 0; }
+.fig-step { position: relative; display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; background: var(--k10-bg); border: 1px solid var(--border); border-radius: 10px; }
+.fig-step + .fig-step { margin-top: 22px; }
+.fig-step + .fig-step::before { content: "▼"; position: absolute; top: -20px; left: 18px; color: var(--k10); font-size: 0.8rem; line-height: 18px; }
+.fig-no { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--k10); color: var(--on-accent); font-weight: 700; font-size: 0.85rem; }
+.fig-step-body { min-width: 0; }
+.fig-after { margin: 10px 0 0; padding: 8px 12px; border: 1px dashed var(--k10); border-radius: 10px; color: var(--k10); font-size: 0.85rem; font-weight: 600; }
+.fig-calc { display: flex; flex-wrap: wrap; align-items: stretch; gap: 14px 10px; padding-top: 8px; }
+.fig-term { position: relative; flex: 1 1 130px; min-width: 0; padding: 10px 10px 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; }
+.fig-term.has-op { padding-left: 34px; }
+.fig-term.fig-result { background: var(--k10-bg); border-color: var(--k10); }
+.fig-term.fig-result .fig-label { color: var(--k10); }
+.fig-op { position: absolute; top: 50%; left: 6px; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--k10); color: var(--on-accent); font-size: 0.85rem; font-weight: 700; line-height: 1; }
+.fig-split { padding: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; }
+.fig-total { padding: 8px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.9rem; }
+.fig-total.fig-result { margin-top: 8px; background: var(--k10-bg); border-color: var(--k10); color: var(--k10); }
+.fig-bar { display: flex; gap: 4px; margin-top: 8px; }
+.fig-part { flex-basis: 0; min-width: 76px; padding: 6px 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; text-align: center; font-variant-numeric: tabular-nums; }
+.fig-bar-share .fig-part { border-top: 4px solid var(--k10); }
+.fig-amount { display: block; margin-top: 2px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+.fig-bar-tax .fig-amount { color: var(--k10); margin: 0; }
+.fig-arrow { margin-top: 8px; color: var(--muted); font-size: 0.8rem; text-align: center; }
+
 /* 辞書タブ：月次更新の履歴 */
 .updates { margin-top: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
 .updates-head { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; padding: 10px 14px; cursor: pointer; }

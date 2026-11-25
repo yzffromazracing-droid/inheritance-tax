@@ -677,6 +677,7 @@
           el("li", { class: "topic-card" }, [
             el("h3", { class: "topic-title" }, [el("span", { text: t.name }), items.length || !t.links ? el("span", { class: "topic-count", text: items.length + " 件" }) : null]),
             el("p", { class: "topic-desc", html: highlight(t.desc, terms) }),
+            t.figure ? renderFigure(t.figure) : null,
             t.table ? renderRateTable(t.table) : null,
           ].concat((t.tables || []).map(renderRateTable), [
             t.note ? el("p", { class: "rate-note", text: t.note }) : null,
@@ -692,7 +693,7 @@
 
     // テーマの説明・表・リンクの文字に、検索語（の組）がすべて含まれるか
     function topicMatches(t, query) {
-      var text = [t.name, t.desc, t.note || ""];
+      var text = [t.name, t.desc, t.note || "", figureText(t.figure)];
       [t.table].concat(t.tables || []).forEach(function (tb) {
         if (tb) text.push(tb.head.join(" "), tb.rows.map(function (r) { return r.join(" "); }).join(" "));
       });
@@ -724,6 +725,70 @@
           ]);
         })),
       ]);
+    }
+
+    // 計算の仕方などの図解（data.bunrui のテーマの figure）
+    //   flow  : 番号付きの手順を矢印でつなぐ
+    //   calc  : 「＋」「－」「×」「＝」で項目をつなぐ計算式
+    //   split : 全体を割合どおりの帯に分け、それぞれの金額と結果を示す
+    function renderFigure(fg) {
+      var box;
+      if (fg.type === "flow") {
+        box = el("div", { class: "fig fig-flow-box" }, [
+          el("ol", { class: "fig-flow" }, fg.steps.map(function (s, i) {
+            return el("li", { class: "fig-step" }, [
+              el("span", { class: "fig-no", text: String(i + 1) }),
+              el("div", { class: "fig-step-body" }, [
+                el("strong", { class: "fig-label", text: s.label }),
+                s.sub ? el("span", { class: "fig-sub", text: s.sub }) : null,
+              ]),
+            ]);
+          })),
+          fg.after ? el("p", { class: "fig-after", text: fg.after }) : null,
+        ]);
+      } else if (fg.type === "calc") {
+        // 演算子は項目の箱の左上に付ける（狭い画面で折り返しても、どの項目に掛かるかがわかるように）
+        var parts = fg.terms.map(function (x) {
+          return el("div", { class: "fig-term" + (x.op === "＝" ? " fig-result" : "") + (x.op ? " has-op" : "") }, [
+            x.op ? el("span", { class: "fig-op", text: x.op }) : null,
+            el("strong", { class: "fig-label", text: x.label }),
+            x.sub ? el("span", { class: "fig-sub", text: x.sub }) : null,
+          ]);
+        });
+        box = el("div", { class: "fig fig-calc", role: "img", "aria-label": fg.terms.map(function (x) {
+          return (x.op || "") + x.label;
+        }).join(" ") }, parts);
+      } else if (fg.type === "split") {
+        function bar(cls, f) {
+          return el("div", { class: "fig-bar " + cls }, fg.parts.map(function (x) {
+            return el("div", { class: "fig-part", style: "flex-grow:" + (x.w || 1) }, f(x));
+          }));
+        }
+        box = el("div", { class: "fig fig-split" }, [
+          el("div", { class: "fig-total", text: fg.total }),
+          bar("fig-bar-share", function (x) {
+            return [el("strong", { class: "fig-label", text: x.label }), el("span", { class: "fig-sub", text: x.share }),
+              el("span", { class: "fig-amount", text: x.value })];
+          }),
+          el("div", { class: "fig-arrow", text: "↓ " + fg.step }),
+          bar("fig-bar-tax", function (x) {
+            return [el("span", { class: "fig-amount", text: x.tax })];
+          }),
+          el("div", { class: "fig-total fig-result", text: fg.result }),
+        ]);
+      } else {
+        return null;
+      }
+      return box;
+    }
+
+    // 図解の文字（検索用）
+    function figureText(fg) {
+      if (!fg) return "";
+      var list = fg.steps || fg.terms || fg.parts || [];
+      return [fg.total || "", fg.step || "", fg.result || "", fg.after || ""].concat(list.map(function (x) {
+        return [x.label, x.sub || "", x.share || "", x.value || "", x.tax || ""].join(" ");
+      })).join(" ");
     }
 
     // 速算表などの表（data.bunrui のテーマの table）
