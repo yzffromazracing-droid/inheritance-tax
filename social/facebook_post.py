@@ -95,7 +95,7 @@ def table_lines(tb):
 
 
 def build_message(data, entry):
-    """投稿の本文。リンクのアドレス（URL）は載せない。"""
+    """投稿の本文。関係する通達・記事には国税庁の原文へのリンクを付け、辞書の公開ページの URL は載せない。"""
     t = entry["topic"]
     lines = ["【今日の相続税区分】" + t["name"], "", "▶ 区分：" + entry["tab_label"] + "｜" + entry["cls_label"], "", t["desc"]]
 
@@ -114,11 +114,14 @@ def build_message(data, entry):
         for i in related:
             no = (" " + i["number"]) if i.get("number") else ""
             lines.append("・" + KIND_LABEL[i["kind"]] + no + "「" + i["title"] + "」")
+            # 国税庁の原文へのリンク（辞書の公開ページの URL は載せない）
+            if i.get("url"):
+                lines.append("　" + i["url"])
     links = t.get("links", [])
     if links and not related:
         lines += ["", "■ 関連ページ"]
         for link in links[:2]:
-            lines.append("・" + link["title"])
+            lines.append("・" + link["title"] + " " + link["url"])
 
     lines += ["", " ".join(HASHTAGS[entry["tab"]] + ["#税務"])]
     return "\n".join(lines)

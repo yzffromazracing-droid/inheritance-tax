@@ -46,6 +46,7 @@ class MessageTest(unittest.TestCase):
         for t in fp.topics(DATA):
             msg = fp.build_message(DATA, t)
             self.assertIn("【今日の相続税区分】" + t["topic"]["name"], msg)
+            self.assertNotIn("github.io", msg)
             self.assertNotIn("#sub=", msg)
             self.assertIn(fp.HASHTAGS[t["tab"]][0], msg)
             self.assertLess(len(msg), 5000)
@@ -62,11 +63,13 @@ class MessageTest(unittest.TestCase):
         self.assertEqual(len({i["kind"] for i in picked}), len(picked))
         self.assertGreaterEqual(total, len(picked))
 
-    def test_no_urls_in_message(self):
-        for t in fp.topics(DATA):
-            msg = fp.build_message(DATA, t)
-            self.assertNotIn("http://", msg)
-            self.assertNotIn("https://", msg)
+    def test_related_items_have_nta_links(self):
+        t = next(x for x in fp.topics(DATA) if x["topic"]["name"] == "相続税額の2割加算")
+        msg = fp.build_message(DATA, t)
+        picked, _ = fp.related_items(DATA, t)
+        for i in picked:
+            self.assertIn("　" + i["url"], msg)
+            self.assertTrue(i["url"].startswith("https://www.nta.go.jp/"))
 
 
 class PostTest(unittest.TestCase):
